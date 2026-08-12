@@ -106,7 +106,6 @@ export default function CreateOrderView({ onSave, onCancel, clients, failedProdu
   });
 
   const [collection, setCollection] = useState('Polyurethane Sealants (High-Modulus)');
-  const [productLine, setProductLine] = useState('DuraSeal Pro - Grey (DS-88G)');
   const [startDate, setStartDate] = useState('2026-08-12');
   const [endDate, setEndDate] = useState('2026-08-19');
 
@@ -114,6 +113,64 @@ export default function CreateOrderView({ onSave, onCancel, clients, failedProdu
   const [batchWeight, setBatchWeight] = useState(1000);
   const [packagingMaterial, setPackagingMaterial] = useState('Cartridges (310ml)');
   const [packagingQuantity, setPackagingQuantity] = useState(500);
+
+  // Custom Formula Builder state
+  const [isFormulaModalOpen, setIsFormulaModalOpen] = useState(false);
+  const [newFormulaName, setNewFormulaName] = useState('');
+  const [newFormulaIngredients, setNewFormulaIngredients] = useState([
+    { name: 'Polyether Polyol (Base)', percentage: 50 },
+    { name: 'Calcium Carbonate (Filler)', percentage: 50 }
+  ]);
+
+  const addIngredientRow = () => {
+    setNewFormulaIngredients([...newFormulaIngredients, { name: '', percentage: 0 }]);
+  };
+
+  const removeIngredientRow = (index) => {
+    setNewFormulaIngredients(newFormulaIngredients.filter((_, i) => i !== index));
+  };
+
+  const updateIngredientRow = (index, field, value) => {
+    setNewFormulaIngredients(newFormulaIngredients.map((ing, i) => {
+      if (i === index) {
+        return { ...ing, [field]: value };
+      }
+      return ing;
+    }));
+  };
+
+  const handleSaveFormula = (e) => {
+    e.preventDefault();
+    const totalPct = newFormulaIngredients.reduce((sum, ing) => sum + (parseFloat(ing.percentage) || 0), 0);
+    if (totalPct !== 100) {
+      alert(`Error: Total percentage must equal 100%. Current sum: ${totalPct}%`);
+      return;
+    }
+    if (!newFormulaName.trim()) {
+      alert("Error: Formula name cannot be empty.");
+      return;
+    }
+
+    const newFormula = {
+      value: newFormulaName,
+      label: newFormulaName,
+      ingredients: newFormulaIngredients.map(ing => ({
+        name: ing.name || 'Unnamed Ingredient',
+        percentage: (parseFloat(ing.percentage) || 0) / 100
+      }))
+    };
+
+    setFormulas([...formulas, newFormula]);
+    setProductLine(newFormula.value);
+
+    // Reset State
+    setNewFormulaName('');
+    setNewFormulaIngredients([
+      { name: 'Polyether Polyol (Base)', percentage: 50 },
+      { name: 'Calcium Carbonate (Filler)', percentage: 50 }
+    ]);
+    setIsFormulaModalOpen(false);
+  };
 
   // Blending state
   const [enableBlending, setEnableBlending] = useState(false);
@@ -123,14 +180,82 @@ export default function CreateOrderView({ onSave, onCancel, clients, failedProdu
   const blendableBatches = failedProducts.filter(p => p.remainingQuantity > 0);
   const selectedBatch = blendableBatches.find(b => b.id === selectedFailedId);
 
-  // Materials formula breakdown matching screenshot
-  const baseFormula = [
-    { name: 'Polyether Polyol (Base)', percentage: 0.45 },
-    { name: 'Calcium Carbonate (Filler)', percentage: 0.30 },
-    { name: 'Diisodecyl Phthalate (Plasticizer)', percentage: 0.15 },
-    { name: 'Titanium Dioxide (Pigment)', percentage: 0.05 },
-    { name: 'Silane Coupling Agent', percentage: 0.05 }
-  ];
+  // Formulas state
+  const [formulas, setFormulas] = useState([
+    {
+      value: "DuraSeal Pro - Grey (DS-88G)",
+      label: "DuraSeal Pro - Grey (DS-88G)",
+      ingredients: [
+        { name: 'Polyether Polyol (Base)', percentage: 0.45 },
+        { name: 'Calcium Carbonate (Filler)', percentage: 0.30 },
+        { name: 'Diisodecyl Phthalate (Plasticizer)', percentage: 0.15 },
+        { name: 'Titanium Dioxide (Pigment)', percentage: 0.05 },
+        { name: 'Silane Coupling Agent', percentage: 0.05 }
+      ]
+    },
+    {
+      value: "URJA Fire Stop",
+      label: "URJA Fire Stop (White, Gray, Black)",
+      ingredients: [
+        { name: 'Acrysol-35', percentage: 0.40 },
+        { name: 'K-226 Catalyst', percentage: 0.05 },
+        { name: 'Calcium Silicate', percentage: 0.35 },
+        { name: 'TiO2 Powder', percentage: 0.10 },
+        { name: 'Propylene Glycol', percentage: 0.10 }
+      ]
+    },
+    {
+      value: "URJA High Temp",
+      label: "URJA High Temperature (White, Gray, Black)",
+      ingredients: [
+        { name: 'Acrysol-35', percentage: 0.38 },
+        { name: 'K-226 Catalyst', percentage: 0.04 },
+        { name: 'Calcium Silicate', percentage: 0.36 },
+        { name: 'TiO2 Powder', percentage: 0.10 },
+        { name: 'Propylene Glycol', percentage: 0.12 }
+      ]
+    },
+    {
+      value: "NEXO GP",
+      label: "NEXO Seal GP Sealant (White, Gray, Black)",
+      ingredients: [
+        { name: 'U400/J400F Polyurethane Base', percentage: 0.42 },
+        { name: 'BYK-348 Wetting Agent', percentage: 0.03 },
+        { name: 'Microsphare P', percentage: 0.05 },
+        { name: 'PPT Powder', percentage: 0.20 },
+        { name: 'Ortan-1288 Dispersant', percentage: 0.05 },
+        { name: 'Thickener T-580', percentage: 0.25 }
+      ]
+    },
+    {
+      value: "EXO GP",
+      label: "EXO Seal GP Sealant (White, Gray, Black, 600ml)",
+      ingredients: [
+        { name: 'U400/J400F Polyurethane Base', percentage: 0.40 },
+        { name: 'Whiting Powder (PCC)', percentage: 0.30 },
+        { name: 'Microsphare P', percentage: 0.05 },
+        { name: 'Ortan-1288 Dispersant', percentage: 0.05 },
+        { name: 'Thickener T-580', percentage: 0.20 }
+      ]
+    },
+    {
+      value: "NEXO DS",
+      label: "NEXO Seal DS (White, Gray, Black)",
+      ingredients: [
+        { name: 'U400/J400F Polyurethane Base', percentage: 0.45 },
+        { name: 'K-226 Catalyst', percentage: 0.05 },
+        { name: 'Acrylic Fibre (Reinforcement)', percentage: 0.02 },
+        { name: 'Microsphare P', percentage: 0.08 },
+        { name: 'Whiting Powder (PCC)', percentage: 0.30 },
+        { name: 'Ortan-1288 Dispersant', percentage: 0.10 }
+      ]
+    }
+  ]);
+
+  const [productLine, setProductLine] = useState('DuraSeal Pro - Grey (DS-88G)');
+
+  const selectedFormulaObj = formulas.find(f => f.value === productLine) || formulas[0];
+  const baseFormula = selectedFormulaObj ? selectedFormulaObj.ingredients : [];
 
   const handleCreate = () => {
     if (enableBlending && selectedFailedId && blendAmount > 0) {
@@ -254,13 +379,7 @@ export default function CreateOrderView({ onSave, onCancel, clients, failedProdu
               <div className="form-group">
                 <label className="form-label">Product Line</label>
                 <CustomSelect
-                  options={[
-                    { value: "URJA Fire Stop", label: "URJA Fire Stop (White, Gray, Black)" },
-                    { value: "URJA High Temp", label: "URJA High Temperature (White, Gray, Black)" },
-                    { value: "NEXO GP", label: "NEXO Seal GP Sealant (White, Gray, Black)" },
-                    { value: "EXO GP", label: "EXO Seal GP Sealant (White, Gray, Black, 600ml)" },
-                    { value: "NEXO DS", label: "NEXO Seal DS (White, Gray, Black)" }
-                  ]}
+                  options={formulas}
                   value={productLine}
                   onChange={setProductLine}
                 />
@@ -340,7 +459,12 @@ export default function CreateOrderView({ onSave, onCancel, clients, failedProdu
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <button className="btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: 'var(--primary-color)', borderColor: 'var(--primary-color)' }}>
+              <button 
+                type="button" 
+                className="btn-outline" 
+                style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: 'var(--primary-color)', borderColor: 'var(--primary-color)' }}
+                onClick={() => setIsFormulaModalOpen(true)}
+              >
                 <Plus size={16} />
                 <span>Add New Formula</span>
               </button>
@@ -519,6 +643,129 @@ export default function CreateOrderView({ onSave, onCancel, clients, failedProdu
           <span>Create Order</span>
         </button>
       </div>
+
+      {/* Add Custom Formula Modal */}
+      {isFormulaModalOpen && (
+        <div className="modal-overlay" style={{ zIndex: 1100 }}>
+          <div className="modal-container" style={{ maxWidth: '640px' }}>
+            <div className="modal-header">
+              <h3 className="modal-title">Create Custom Chemical Formula</h3>
+              <button
+                style={{ background: 'none', border: 'none', fontSize: '1.25rem', cursor: 'pointer' }}
+                onClick={() => setIsFormulaModalOpen(false)}
+              >
+                &times;
+              </button>
+            </div>
+            <form onSubmit={handleSaveFormula}>
+              <div className="modal-body" style={{ maxHeight: '65vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                
+                <div className="form-group">
+                  <label className="form-label" style={{ fontWeight: 700 }}>Formula / Product Line Name</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="e.g. DuraSeal Premium Grey"
+                    value={newFormulaName}
+                    onChange={(e) => setNewFormulaName(e.target.value)}
+                    required
+                    style={{ width: '100%', padding: '0.65rem 0.85rem', border: '1px solid var(--border-color)', borderRadius: '8px' }}
+                  />
+                </div>
+
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                    <label className="form-label" style={{ fontWeight: 700, margin: 0 }}>Formula Ingredients (Target: 100kg)</label>
+                    <button
+                      type="button"
+                      className="btn-outline"
+                      style={{ padding: '0.25rem 0.75rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                      onClick={addIngredientRow}
+                    >
+                      <Plus size={14} />
+                      <span>Add Ingredient</span>
+                    </button>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    {newFormulaIngredients.map((ing, idx) => {
+                      const amountKg = (parseFloat(ing.percentage) || 0).toFixed(1);
+                      return (
+                        <div key={idx} style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                          <input
+                            type="text"
+                            className="form-input"
+                            placeholder="Ingredient name (e.g. Polyether Polyol)"
+                            value={ing.name}
+                            onChange={(e) => updateIngredientRow(idx, 'name', e.target.value)}
+                            required
+                            style={{ flex: 2, padding: '0.5rem 0.75rem', border: '1px solid var(--border-color)', borderRadius: '8px' }}
+                          />
+                          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <input
+                              type="number"
+                              className="form-input"
+                              placeholder="Percentage"
+                              value={ing.percentage}
+                              onChange={(e) => updateIngredientRow(idx, 'percentage', e.target.value)}
+                              required
+                              min="0"
+                              max="100"
+                              style={{ width: '70px', textAlign: 'center', padding: '0.5rem', border: '1px solid var(--border-color)', borderRadius: '8px' }}
+                            />
+                            <span style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--text-muted)' }}>%</span>
+                          </div>
+                          
+                          <div style={{ width: '130px', fontSize: '0.85rem', color: '#1e293b', fontWeight: 600, backgroundColor: '#f1f5f9', padding: '0.5rem 0.75rem', borderRadius: '8px', border: '1px solid var(--border-color)', textAlign: 'center' }}>
+                            {amountKg} kg
+                          </div>
+
+                          <button
+                            type="button"
+                            style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '1.25rem', cursor: 'pointer', padding: '0.25rem' }}
+                            onClick={() => removeIngredientRow(idx)}
+                            disabled={newFormulaIngredients.length <= 1}
+                          >
+                            &times;
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Percentage status indicator */}
+                {(() => {
+                  const sum = newFormulaIngredients.reduce((s, ing) => s + (parseFloat(ing.percentage) || 0), 0);
+                  const isCorrect = sum === 100;
+                  return (
+                    <div style={{ padding: '0.75rem 1rem', borderRadius: '8px', backgroundColor: isCorrect ? '#f0fdf4' : '#fffbeb', border: `1px solid ${isCorrect ? '#bbf7d0' : '#fde68a'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 600, color: isCorrect ? '#16a34a' : '#d97706' }}>
+                        {isCorrect ? 'Formula Balanced' : 'Formula Unbalanced (must sum to 100%)'}
+                      </span>
+                      <span style={{ fontSize: '0.9rem', fontWeight: 700, color: isCorrect ? '#16a34a' : '#d97706' }}>
+                        Total: {sum}% / 100%
+                      </span>
+                    </div>
+                  );
+                })()}
+
+              </div>
+              <div className="modal-footer" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1rem', marginTop: '1.25rem' }}>
+                <button type="button" className="btn-outline" onClick={() => setIsFormulaModalOpen(false)}>Cancel</button>
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  style={{ backgroundColor: 'var(--primary-color)' }}
+                  disabled={newFormulaIngredients.reduce((s, ing) => s + (parseFloat(ing.percentage) || 0), 0) !== 100 || !newFormulaName.trim()}
+                >
+                  Save Formula
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
