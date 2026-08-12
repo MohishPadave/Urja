@@ -10,6 +10,7 @@ import CreateOrderView from './components/CreateOrderView';
 import ProductCatalogView from './components/ProductCatalogView';
 import SuppliersView from './components/SuppliersView';
 import OrderDetailView from './components/OrderDetailView';
+import SalesDashboard from './components/SalesDashboard';
 
 // Mock Initial Databases
 const initialClients = [
@@ -262,6 +263,11 @@ function App() {
   // If not logged in, render Login Panel
   if (!user) {
     return <LoginView onLogin={handleLogin} />;
+  }
+
+  // If logged in as Salesman, render Sales Dashboard
+  if (user.role === 'Salesman') {
+    return <SalesDashboard user={user} onLogout={handleLogout} />;
   }
 
   return (

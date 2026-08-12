@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Mail, Lock, Eye, EyeOff, ShieldAlert, ArrowLeft } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ShieldAlert, ArrowLeft, Factory, ShoppingBag } from 'lucide-react';
 
 export default function LoginView({ onLogin }) {
   const [email, setEmail] = useState('admin@urjasealants.com');
   const [password, setPassword] = useState('password123');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [selectedRole, setSelectedRole] = useState('admin'); // 'admin' | 'salesman'
   
   // Password Reset state
   const [isResetMode, setIsResetMode] = useState(false);
@@ -17,7 +18,12 @@ export default function LoginView({ onLogin }) {
       setError('Please fill in all fields');
       return;
     }
-    onLogin({ name: 'JD', role: 'Plant Manager', email });
+    setError('');
+    if (selectedRole === 'salesman') {
+      onLogin({ name: email.split('@')[0], role: 'Salesman', email });
+    } else {
+      onLogin({ name: 'JD', role: 'Plant Manager', email });
+    }
   };
 
   const handleResetSubmit = (e) => {
@@ -45,6 +51,13 @@ export default function LoginView({ onLogin }) {
                 Powering industrial production with robust, resilient software solutions designed for high-pressure environments.
               </p>
             </>
+          ) : selectedRole === 'salesman' ? (
+            <>
+              <h1 className="login-visual-tagline">Sales Portal</h1>
+              <p style={{ fontSize: '1.05rem', color: 'rgba(255, 255, 255, 0.9)', lineHeight: '1.4' }}>
+                Place orders, track deliveries, and manage client quotations — all in one place.
+              </p>
+            </>
           ) : (
             <h1 className="login-visual-tagline">Trusted Sealants & Adhesives, Every Batch</h1>
           )}
@@ -54,19 +67,77 @@ export default function LoginView({ onLogin }) {
       {/* Right panel with forms */}
       <div className="login-form-panel">
         <div className="login-form-wrapper">
-          <div className="login-logo-wrapper" style={{ marginBottom: '2.5rem' }}>
-            <div className="login-logo-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M19 10L12 3L5 10V20H19V10Z" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M12 9V15" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M9 12H15" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
+          <div className="login-logo-wrapper" style={{ marginBottom: '2rem' }}>
+            <img 
+              src="/urja-1.png" 
+              alt="Urja Logo" 
+              style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'contain' }} 
+            />
             <div className="login-logo-text">
               <h2>Urja Sealants</h2>
-              <p>Manufacturing Portal</p>
+              <p>{selectedRole === 'salesman' ? 'Sales Portal' : 'Manufacturing Portal'}</p>
             </div>
           </div>
+
+          {/* Role Selector Tabs */}
+          {!isResetMode && (
+            <div style={{
+              display: 'flex',
+              gap: '0',
+              marginBottom: '1.75rem',
+              border: '1px solid var(--border-color)',
+              borderRadius: '10px',
+              overflow: 'hidden',
+              backgroundColor: '#f1f5f9'
+            }}>
+              <button
+                type="button"
+                onClick={() => { setSelectedRole('admin'); setError(''); }}
+                style={{
+                  flex: 1,
+                  padding: '0.7rem 1rem',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                  transition: 'all 0.2s ease',
+                  backgroundColor: selectedRole === 'admin' ? 'var(--primary-color)' : 'transparent',
+                  color: selectedRole === 'admin' ? 'white' : 'var(--text-muted)',
+                  borderRadius: selectedRole === 'admin' ? '9px' : '0',
+                }}
+              >
+                <Factory size={16} />
+                Admin / Manager
+              </button>
+              <button
+                type="button"
+                onClick={() => { setSelectedRole('salesman'); setError(''); }}
+                style={{
+                  flex: 1,
+                  padding: '0.7rem 1rem',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                  transition: 'all 0.2s ease',
+                  backgroundColor: selectedRole === 'salesman' ? 'var(--primary-color)' : 'transparent',
+                  color: selectedRole === 'salesman' ? 'white' : 'var(--text-muted)',
+                  borderRadius: selectedRole === 'salesman' ? '9px' : '0',
+                }}
+              >
+                <ShoppingBag size={16} />
+                Sales Team
+              </button>
+            </div>
+          )}
 
           {/* Render Reset Password Form */}
           {isResetMode ? (
@@ -122,7 +193,7 @@ export default function LoginView({ onLogin }) {
             <div>
               <div className="login-welcome">
                 <h1>Welcome Back</h1>
-                <p>Sign in to manage your inventory</p>
+                <p>{selectedRole === 'salesman' ? 'Sign in to place and track orders' : 'Sign in to manage your inventory'}</p>
               </div>
 
               {error && (
@@ -195,7 +266,7 @@ export default function LoginView({ onLogin }) {
         </div>
 
         <div className="login-copyright">
-          © 2026 Sealant Co. All rights reserved.
+          © 2026 Urja Sealants. All rights reserved.
         </div>
       </div>
     </div>
