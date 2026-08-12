@@ -122,6 +122,14 @@ const initialInventory = [
   { id: 'PM-4050', name: 'Corrugated Shipping Boxes (L)', quantity: 4200, threshold: 2000, status: 'Healthy', unit: 'Units', category: 'Boxes', type: 'Packaging', starred: false, lastUpdated: '2023-10-31' }
 ];
 
+const initialFailedProducts = [
+  { id: 'ORD-2023-8905', productName: 'URJA Fire Stop (Gray)', totalQuantity: 1200, remainingQuantity: 1200, reason: 'Viscosity below threshold', date: '2023-10-24' },
+  { id: 'ORD-2023-8918', productName: 'NEXO Seal DS (Black)', totalQuantity: 400, remainingQuantity: 400, reason: 'Color pigment mismatch', date: '2023-10-29' },
+  { id: 'ORD-2023-8929', productName: 'EXO Seal GP Sealant (White)', totalQuantity: 800, remainingQuantity: 800, reason: 'Curing rate too slow', date: '2023-10-26' },
+  { id: 'ORD-2023-8933', productName: 'URJA High Temperature (White)', totalQuantity: 1500, remainingQuantity: 1500, reason: 'Incomplete polymerization', date: '2023-10-28' },
+  { id: 'ORD-2023-8946', productName: 'NEXO Seal GP Sealant (Black)', totalQuantity: 600, remainingQuantity: 600, reason: 'Skin-over time out of spec', date: '2023-10-25' }
+];
+
 const initialLogs = [
   { id: '#B-8924', product: 'Polyurethane Sealant X-1', status: 'Mixing', time: '10:42 AM' },
   { id: '#B-8923', product: 'Silicone Adhesive Base', status: 'Packaging', time: '09:15 AM' },
@@ -138,6 +146,7 @@ function App() {
   const [orders, setOrders] = useState(initialOrders);
   const [inventory, setInventory] = useState(initialInventory);
   const [logs, setLogs] = useState(initialLogs);
+  const [failedProducts, setFailedProducts] = useState(initialFailedProducts);
 
   const [isSystemHalted, setIsSystemHalted] = useState(false);
   const [activeDrawer, setActiveDrawer] = useState(null); // { type, data }
@@ -184,6 +193,35 @@ function App() {
 
   const handleUpdateOrderStatus = (orderId, newStatus) => {
     setOrders(prevOrders => prevOrders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+
+    if (newStatus === 'Discarded' || newStatus === 'Failed') {
+      const order = orders.find(o => o.id === orderId);
+      if (order) {
+        const batchWt = order.productDetails?.batchWeight || 1000;
+        const failedItem = {
+          id: order.id,
+          productName: order.productDetails?.productLine || 'URJA Custom Sealant Blend',
+          totalQuantity: batchWt,
+          remainingQuantity: batchWt,
+          reason: newStatus === 'Discarded' ? 'Quality Control check failure in Testing phase' : 'QC Failure - Slated for Blending',
+          date: new Date().toISOString().split('T')[0]
+        };
+        setFailedProducts(prev => {
+          if (prev.some(p => p.id === order.id)) return prev;
+          return [failedItem, ...prev];
+        });
+      }
+    }
+  };
+
+  const handleDeductFailedProduct = (id, amount) => {
+    setFailedProducts(prev => prev.map(item => {
+      if (item.id === id) {
+        const rem = Math.max(0, item.remainingQuantity - amount);
+        return { ...item, remainingQuantity: rem };
+      }
+      return item;
+    }));
   };
 
   const handleHaltToggle = () => {
@@ -266,6 +304,8 @@ function App() {
               setCurrentView('orders');
             }}
             onCancel={() => setCurrentView('orders')}
+            failedProducts={failedProducts}
+            onDeductFailedProduct={handleDeductFailedProduct}
           />
         );
       case 'raw-materials':
@@ -297,6 +337,7 @@ function App() {
           <FailedProductsView
             user={user}
             orders={orders}
+            failedProducts={failedProducts}
           />
         );
       case 'profile':

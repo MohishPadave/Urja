@@ -1,31 +1,10 @@
 import React, { useState } from 'react';
 import { Search, AlertOctagon, Download, Bell, Globe } from 'lucide-react';
 
-const mockFailedProducts = [
-  { id: 'ORD-2023-8905', productName: 'URJA Fire Stop (Gray)', quantity: '1,200 kg', reason: 'Viscosity below threshold', date: '2023-10-24' },
-  { id: 'ORD-2023-8918', productName: 'NEXO Seal DS (Black)', quantity: '400 kg', reason: 'Color pigment mismatch', date: '2023-10-29' },
-  { id: 'ORD-2023-8929', productName: 'EXO Seal GP Sealant (White)', quantity: '800 kg', reason: 'Curing rate too slow', date: '2023-10-26' },
-  { id: 'ORD-2023-8933', productName: 'URJA High Temperature (White)', quantity: '1,500 kg', reason: 'Incomplete polymerization', date: '2023-10-28' },
-  { id: 'ORD-2023-8946', productName: 'NEXO Seal GP Sealant (Black)', quantity: '600 kg', reason: 'Skin-over time out of spec', date: '2023-10-25' }
-];
-
-export default function FailedProductsView({ user, orders = [] }) {
+export default function FailedProductsView({ user, failedProducts = [] }) {
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Extract discarded orders from active state
-  const discardedOrders = orders
-    .filter(order => order.status === 'Discarded')
-    .map(order => ({
-      id: order.id,
-      productName: order.productDetails?.productLine || 'URJA Custom Sealant Blend',
-      quantity: order.productDetails?.batchWeight ? `${order.productDetails.batchWeight.toLocaleString()} kg` : '1,000 kg',
-      reason: 'Quality Control check failure in Testing phase',
-      date: order.endDate || new Date().toISOString().split('T')[0]
-    }));
-
-  const allFailedProducts = [...discardedOrders, ...mockFailedProducts];
-
-  const filteredFailed = allFailedProducts.filter(item => 
+  const filteredFailed = failedProducts.filter(item => 
     item.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.reason.toLowerCase().includes(searchTerm.toLowerCase())
@@ -88,7 +67,7 @@ export default function FailedProductsView({ user, orders = [] }) {
                 <tr>
                   <th>Order ID</th>
                   <th>Product</th>
-                  <th>Quantity</th>
+                  <th>Remaining / Total Qty</th>
                   <th>QC Failure Reason</th>
                   <th>Log Date</th>
                 </tr>
@@ -105,7 +84,19 @@ export default function FailedProductsView({ user, orders = [] }) {
                     <tr key={item.id}>
                       <td style={{ fontWeight: 600 }}>{item.id}</td>
                       <td style={{ fontWeight: 500 }}>{item.productName}</td>
-                      <td style={{ fontWeight: 600, color: '#ef4444' }}>{item.quantity}</td>
+                      <td style={{ fontWeight: 600, color: item.remainingQuantity === 0 ? '#10b981' : '#ef4444' }}>
+                        {item.remainingQuantity.toLocaleString()} / {item.totalQuantity.toLocaleString()} kg
+                        {item.remainingQuantity === 0 && (
+                          <span style={{ display: 'block', fontSize: '0.75rem', color: '#10b981', fontWeight: 'bold', marginTop: '0.15rem' }}>
+                            (Fully Recycled)
+                          </span>
+                        )}
+                        {item.remainingQuantity > 0 && item.remainingQuantity < item.totalQuantity && (
+                          <span style={{ display: 'block', fontSize: '0.75rem', color: '#d97706', fontWeight: 'bold', marginTop: '0.15rem' }}>
+                            (Partially Blended)
+                          </span>
+                        )}
+                      </td>
                       <td>
                         <span style={{
                           padding: '0.25rem 0.5rem',
@@ -130,7 +121,7 @@ export default function FailedProductsView({ user, orders = [] }) {
           {/* Table Footer */}
           <div className="table-footer">
             <div className="footer-text">
-              Showing 1-{filteredFailed.length} of {allFailedProducts.length} QC logs
+              Showing 1-{filteredFailed.length} of {failedProducts.length} QC logs
             </div>
           </div>
         </div>

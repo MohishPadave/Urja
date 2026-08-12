@@ -96,7 +96,7 @@ function CustomSelect({ options, value, onChange }) {
   );
 }
 
-export default function CreateOrderView({ onSave, onCancel, clients }) {
+export default function CreateOrderView({ onSave, onCancel, clients, failedProducts = [], onDeductFailedProduct }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedClient, setSelectedClient] = useState({
     id: 'CLI-8992',
@@ -115,6 +115,14 @@ export default function CreateOrderView({ onSave, onCancel, clients }) {
   const [packagingMaterial, setPackagingMaterial] = useState('Cartridges (310ml)');
   const [packagingQuantity, setPackagingQuantity] = useState(500);
 
+  // Blending state
+  const [enableBlending, setEnableBlending] = useState(false);
+  const [selectedFailedId, setSelectedFailedId] = useState('');
+  const [blendAmount, setBlendAmount] = useState(0);
+
+  const blendableBatches = failedProducts.filter(p => p.remainingQuantity > 0);
+  const selectedBatch = blendableBatches.find(b => b.id === selectedFailedId);
+
   // Materials formula breakdown matching screenshot
   const baseFormula = [
     { name: 'Polyether Polyol (Base)', percentage: 0.45 },
@@ -125,6 +133,10 @@ export default function CreateOrderView({ onSave, onCancel, clients }) {
   ];
 
   const handleCreate = () => {
+    if (enableBlending && selectedFailedId && blendAmount > 0) {
+      onDeductFailedProduct && onDeductFailedProduct(selectedFailedId, blendAmount);
+    }
+
     onSave({
       id: `ORD-2026-${Math.floor(1000 + Math.random() * 9000)}`,
       clientName: selectedClient.name,
@@ -139,7 +151,9 @@ export default function CreateOrderView({ onSave, onCancel, clients }) {
         productLine,
         batchWeight,
         packagingMaterial,
-        packagingQuantity
+        packagingQuantity,
+        blendedFrom: enableBlending ? selectedFailedId : null,
+        blendedAmount: enableBlending ? blendAmount : 0
       }
     });
   };
@@ -251,6 +265,78 @@ export default function CreateOrderView({ onSave, onCancel, clients }) {
                   onChange={setProductLine}
                 />
               </div>
+            </div>
+
+            {/* Blending Configuration Section */}
+            <div style={{ borderTop: '1px solid var(--border-color)', marginTop: '1.25rem', paddingTop: '1.25rem', marginBottom: '1rem' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600, cursor: 'pointer', fontSize: '0.9rem', marginBottom: '0.75rem', color: '#1e293b' }}>
+                <input
+                  type="checkbox"
+                  checked={enableBlending}
+                  onChange={(e) => {
+                    setEnableBlending(e.target.checked);
+                    if (e.target.checked && blendableBatches.length > 0) {
+                      setSelectedFailedId(blendableBatches[0].id);
+                      setBlendAmount(Math.min(25, blendableBatches[0].remainingQuantity));
+                    } else {
+                      setBlendAmount(0);
+                    }
+                  }}
+                  style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                />
+                Blend with Failed Batch / Recycle Material?
+              </label>
+
+              {enableBlending && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem', marginTop: '1rem', backgroundColor: '#faf5ff', padding: '1.25rem', borderRadius: '10px', border: '1px solid #e9d5ff' }}>
+                  <div className="form-group">
+                    <label className="form-label" style={{ color: '#6b21a8', fontWeight: 700 }}>Select Failed Product Batch</label>
+                    {blendableBatches.length === 0 ? (
+                      <p style={{ fontSize: '0.85rem', color: '#dc2626', margin: 0, fontWeight: 600 }}>No failed batches available for blending.</p>
+                    ) : (
+                      <CustomSelect
+                        options={blendableBatches.map(b => ({ value: b.id, label: `${b.id} - ${b.productName} (${b.remainingQuantity} kg left)` }))}
+                        value={selectedFailedId}
+                        onChange={(val) => {
+                          setSelectedFailedId(val);
+                          const target = blendableBatches.find(b => b.id === val);
+                          if (target) {
+                            setBlendAmount(Math.min(25, target.remainingQuantity));
+                          }
+                        }}
+                      />
+                    )}
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label" style={{ color: '#6b21a8', fontWeight: 700 }}>Blend Amount (kg)</label>
+                    <input
+                      type="number"
+                      className="filter-select"
+                      style={{ width: '100%', backgroundColor: 'white', backgroundImage: 'none', paddingRight: '1rem' }}
+                      value={blendAmount}
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value) || 0;
+                        const maxLimit = selectedBatch ? selectedBatch.remainingQuantity : 0;
+                        setBlendAmount(Math.min(val, maxLimit, batchWeight));
+                      }}
+                      min="0"
+                      max={selectedBatch ? selectedBatch.remainingQuantity : 0}
+                      placeholder="e.g. 25"
+                      disabled={blendableBatches.length === 0}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {enableBlending && blendableBatches.length > 0 && (
+                <div style={{ marginTop: '0.75rem', padding: '0.85rem 1.25rem', backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.85rem', color: '#16a34a', fontWeight: 600 }}>Deduction Calculator:</span>
+                  <span style={{ fontSize: '0.85rem', color: '#16a34a', fontWeight: 700 }}>
+                    {batchWeight} kg (Target) - {blendAmount} kg (Blend) = {batchWeight - blendAmount} kg (Fresh Blend Production)
+                  </span>
+                </div>
+              )}
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -380,13 +466,23 @@ export default function CreateOrderView({ onSave, onCancel, clients }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {baseFormula.map((item, index) => (
-                    <tr key={index}>
-                      <td style={{ fontWeight: 500 }}>{item.name}</td>
-                      <td style={{ fontWeight: 600 }}>{(batchWeight * item.percentage).toFixed(1)}</td>
-                      <td style={{ color: 'var(--text-muted)' }}>{Math.round(item.percentage * 100)}%</td>
+                  {baseFormula.map((item, index) => {
+                    const freshBatchWeight = batchWeight - (enableBlending ? blendAmount : 0);
+                    return (
+                      <tr key={index}>
+                        <td style={{ fontWeight: 500 }}>{item.name}</td>
+                        <td style={{ fontWeight: 600 }}>{(freshBatchWeight * item.percentage).toFixed(1)}</td>
+                        <td style={{ color: 'var(--text-muted)' }}>{Math.round(item.percentage * 100)}%</td>
+                      </tr>
+                    );
+                  })}
+                  {enableBlending && blendAmount > 0 && (
+                    <tr style={{ backgroundColor: '#faf5ff', color: '#6b21a8', fontWeight: 600 }}>
+                      <td>Blended Batch ({selectedFailedId})</td>
+                      <td>{blendAmount.toFixed(1)} kg</td>
+                      <td>{((blendAmount / batchWeight) * 100).toFixed(1)}%</td>
                     </tr>
-                  ))}
+                  )}
                   <tr style={{ backgroundColor: '#f1f5f9', fontWeight: 700 }}>
                     <td>Total Batch Weight</td>
                     <td>{batchWeight.toFixed(1)} kg</td>

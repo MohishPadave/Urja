@@ -240,7 +240,11 @@ export default function OrdersView({
                                     <button
                                       className="btn-table-action"
                                       style={{ color: '#0284c7', backgroundColor: '#f0f9ff', borderColor: '#bae6fd' }}
-                                      onClick={() => alert(`Blending initiated for Batch ${order.id}`)}
+                                      onClick={() => {
+                                        if (confirm(`Mark Batch ${order.id} as failed and flag it for blending? It will be logged in Failed Products.`)) {
+                                          onUpdateOrderStatus && onUpdateOrderStatus(order.id, 'Failed');
+                                        }
+                                      }}
                                     >
                                       <RotateCw size={14} />
                                       <span>Blend</span>
