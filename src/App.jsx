@@ -26,15 +26,42 @@ const initialOrders = [
 ];
 
 const initialInventory = [
-  { id: 'RM-1042', name: 'Industrial Silicone Base X2', quantity: 120, threshold: 500, status: 'Critical', unit: 'L', category: 'Silicone', type: 'Raw', starred: true, lastUpdated: '2023-10-24' },
-  { id: 'RM-2099', name: 'Polyurethane Resin A', quantity: 4500, threshold: 1000, status: 'Healthy', unit: 'kg', category: 'Resins', type: 'Raw', starred: false, lastUpdated: '2023-10-25' },
-  { id: 'RM-0551', name: 'Curing Agent B-Plus', quantity: 850, threshold: 1000, status: 'Low Stock', unit: 'kg', category: 'Curing Agents', type: 'Raw', starred: false, lastUpdated: '2023-10-26' },
-  { id: 'RM-3102', name: 'Acrylic Emulsion', quantity: 2200, threshold: 800, status: 'Healthy', unit: 'L', category: 'Emulsions', type: 'Raw', starred: false, lastUpdated: '2023-10-27' },
-  { id: 'RM-1188', name: 'Premium Titanium Dioxide', quantity: 450, threshold: 600, status: 'Low Stock', unit: 'kg', category: 'Additives', type: 'Raw', starred: true, lastUpdated: '2023-10-28' },
+  // Emulsions & Resins
+  { id: 'RM-1024', name: 'U400/J400F Polyurethane Base', quantity: 4500, threshold: 2000, status: 'Healthy', unit: 'kg', category: 'Resins', type: 'Raw', starred: true, lastUpdated: '2023-10-24' },
+  { id: 'RM-3501', name: 'Acrysol-35 Emulsion', quantity: 2800, threshold: 1000, status: 'Healthy', unit: 'kg', category: 'Resins', type: 'Raw', starred: false, lastUpdated: '2023-10-25' },
+  { id: 'RM-5262', name: '5262- Acrylic Emulsion', quantity: 180, threshold: 800, status: 'Critical', unit: 'kg', category: 'Emulsions', type: 'Raw', starred: false, lastUpdated: '2023-10-26' },
+  
+  // Fillers & Pigments
+  { id: 'RM-2099', name: 'Calcium Silicate Filler', quantity: 6000, threshold: 1500, status: 'Healthy', unit: 'kg', category: 'Additives', type: 'Raw', starred: false, lastUpdated: '2023-10-27' },
+  { id: 'RM-2098', name: 'TiO2 Powder (Titanium Dioxide)', quantity: 450, threshold: 600, status: 'Low Stock', unit: 'kg', category: 'Additives', type: 'Raw', starred: true, lastUpdated: '2023-10-28' },
+  { id: 'RM-2097', name: 'Whiting Powder (PCC)', quantity: 8200, threshold: 2000, status: 'Healthy', unit: 'kg', category: 'Additives', type: 'Raw', starred: false, lastUpdated: '2023-10-29' },
+  { id: 'RM-2096', name: 'Microsphare P', quantity: 120, threshold: 300, status: 'Critical', unit: 'kg', category: 'Additives', type: 'Raw', starred: false, lastUpdated: '2023-10-30' },
+  { id: 'RM-2095', name: 'PPT Powder', quantity: 1500, threshold: 800, status: 'Healthy', unit: 'kg', category: 'Additives', type: 'Raw', starred: false, lastUpdated: '2023-10-31' },
+
+  // Plasticizers & Additives
+  { id: 'RM-0551', name: 'CPW (Chlorinated Paraffin Wax)', quantity: 3400, threshold: 1000, status: 'Healthy', unit: 'L', category: 'Curing Agents', type: 'Raw', starred: false, lastUpdated: '2023-10-26' },
+  { id: 'RM-0552', name: 'Propylene Glycol (PG)', quantity: 750, threshold: 800, status: 'Low Stock', unit: 'L', category: 'Curing Agents', type: 'Raw', starred: false, lastUpdated: '2023-10-27' },
+  { id: 'RM-0111', name: 'Additive 111 (Stabilizer)', quantity: 420, threshold: 200, status: 'Healthy', unit: 'L', category: 'Additives', type: 'Raw', starred: false, lastUpdated: '2023-10-28' },
+  { id: 'RM-0459', name: 'Additive 459 (Crosslinker)', quantity: 90, threshold: 150, status: 'Critical', unit: 'L', category: 'Additives', type: 'Raw', starred: true, lastUpdated: '2023-10-29' },
+  { id: 'RM-1288', name: 'Ortan-1288 Dispersant', quantity: 380, threshold: 200, status: 'Healthy', unit: 'kg', category: 'Additives', type: 'Raw', starred: false, lastUpdated: '2023-10-30' },
+  { id: 'RM-1870', name: 'Additive 187 Adhesion Promoter', quantity: 110, threshold: 100, status: 'Low Stock', unit: 'L', category: 'Additives', type: 'Raw', starred: false, lastUpdated: '2023-10-31' },
+  { id: 'RM-3480', name: 'BYK-348 Wetting Agent', quantity: 240, threshold: 100, status: 'Healthy', unit: 'L', category: 'Additives', type: 'Raw', starred: false, lastUpdated: '2023-11-01' },
+  
+  // Catalysts, Thickeners & Fibres
+  { id: 'RM-2260', name: 'K-226 Catalyst', quantity: 550, threshold: 200, status: 'Healthy', unit: 'kg', category: 'Curing Agents', type: 'Raw', starred: false, lastUpdated: '2023-10-25' },
+  { id: 'RM-0060', name: 'Thickener T-60', quantity: 720, threshold: 300, status: 'Healthy', unit: 'kg', category: 'Additives', type: 'Raw', starred: false, lastUpdated: '2023-10-26' },
+  { id: 'RM-0580', name: 'Thickener T-580', quantity: 290, threshold: 300, status: 'Low Stock', unit: 'kg', category: 'Additives', type: 'Raw', starred: false, lastUpdated: '2023-10-27' },
+  { id: 'RM-0200', name: 'BNT-200 Gelling Agent', quantity: 85, threshold: 100, status: 'Critical', unit: 'kg', category: 'Curing Agents', type: 'Raw', starred: false, lastUpdated: '2023-10-28' },
+  { id: 'RM-0010', name: 'Acrylic Fibre (Reinforcement)', quantity: 300, threshold: 150, status: 'Healthy', unit: 'kg', category: 'Additives', type: 'Raw', starred: false, lastUpdated: '2023-10-29' },
+  { id: 'RM-0020', name: 'Bondex High-Tack Binder', quantity: 880, threshold: 400, status: 'Healthy', unit: 'kg', category: 'Additives', type: 'Raw', starred: false, lastUpdated: '2023-10-30' },
+  { id: 'RM-0030', name: 'Carbigloss Sheen Modifier', quantity: 1200, threshold: 500, status: 'Healthy', unit: 'kg', category: 'Additives', type: 'Raw', starred: false, lastUpdated: '2023-10-31' },
+  { id: 'RM-0040', name: 'Texnol Extender', quantity: 450, threshold: 300, status: 'Healthy', unit: 'L', category: 'Additives', type: 'Raw', starred: false, lastUpdated: '2023-11-01' },
+  { id: 'RM-0050', name: 'Antifoam Agent', quantity: 180, threshold: 100, status: 'Healthy', unit: 'L', category: 'Additives', type: 'Raw', starred: false, lastUpdated: '2023-11-02' },
+  { id: 'RM-0090', name: 'Black Paste Colorant', quantity: 950, threshold: 400, status: 'Healthy', unit: 'kg', category: 'Additives', type: 'Raw', starred: false, lastUpdated: '2023-11-03' },
 
   // Packaging Materials
   { id: 'PM-2010', name: 'Plastic Sealant Cartridges 310ml', quantity: 12000, threshold: 5000, status: 'Healthy', unit: 'Units', category: 'Containers', type: 'Packaging', starred: false, lastUpdated: '2023-10-29' },
-  { id: 'PM-3040', name: 'Aluminum Foil Bags (Aerosol)', quantity: 800, threshold: 1500, status: 'Critical', unit: 'Units', category: 'Containers', type: 'Packaging', starred: true, lastUpdated: '2023-10-30' },
+  { id: 'PM-3040', name: 'Aluminum Foil Sausage Packets 600ml', quantity: 800, threshold: 1500, status: 'Critical', unit: 'Units', category: 'Containers', type: 'Packaging', starred: true, lastUpdated: '2023-10-30' },
   { id: 'PM-4050', name: 'Corrugated Shipping Boxes (L)', quantity: 4200, threshold: 2000, status: 'Healthy', unit: 'Units', category: 'Boxes', type: 'Packaging', starred: false, lastUpdated: '2023-10-31' }
 ];
 

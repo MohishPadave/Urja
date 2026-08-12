@@ -143,9 +143,9 @@ export default function CreateOrderView({ onSave, onCancel, clients }) {
                   value={collection}
                   onChange={(e) => setCollection(e.target.value)}
                 >
-                  <option>Polyurethane Sealants (High-Modulus)</option>
-                  <option>Silicone Sealants (Neutral Cure)</option>
-                  <option>Acrylic Sealants (Painter Grade)</option>
+                  <option value="Acrylic Sealants">Acrylic Sealants</option>
+                  <option value="GP Sealants">GP Sealants</option>
+                  <option value="Specialty Elastomers">Specialty Elastomers</option>
                 </select>
               </div>
 
@@ -157,9 +157,11 @@ export default function CreateOrderView({ onSave, onCancel, clients }) {
                   value={productLine}
                   onChange={(e) => setProductLine(e.target.value)}
                 >
-                  <option>DuraSeal Pro - Grey (DS-88G)</option>
-                  <option>DuraSeal Pro - White (DS-88W)</option>
-                  <option>Silco-Flex Clear (SF-22C)</option>
+                  <option value="URJA Fire Stop">URJA Fire Stop (White, Gray, Black)</option>
+                  <option value="URJA High Temp">URJA High Temperature (White, Gray, Black)</option>
+                  <option value="NEXO GP">NEXO Seal GP Sealant (White, Gray, Black)</option>
+                  <option value="EXO GP">EXO Seal GP Sealant (White, Gray, Black, 600ml)</option>
+                  <option value="NEXO DS">NEXO Seal DS (White, Gray, Black)</option>
                 </select>
               </div>
             </div>
