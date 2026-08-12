@@ -11,6 +11,7 @@ import ProductCatalogView from './components/ProductCatalogView';
 import SuppliersView from './components/SuppliersView';
 import OrderDetailView from './components/OrderDetailView';
 import SalesDashboard from './components/SalesDashboard';
+import FailedProductsView from './components/FailedProductsView';
 
 // Mock Initial Databases
 const initialClients = [
@@ -20,10 +21,65 @@ const initialClients = [
 ];
 
 const initialOrders = [
-  { id: 'ORD-2023-8901', clientName: 'BuildCorp Industries', startDate: '2023-10-24', endDate: '2023-10-28', price: 45200.00, priority: 'High', status: 'In Production', starred: true },
+  // Confirmed Status (10 orders)
   { id: 'ORD-2023-8904', clientName: 'Apex Sealants LLC', startDate: '2023-10-25', endDate: '2023-11-02', price: 12850.00, priority: 'Medium', status: 'Confirmed', starred: false },
+  { id: 'ORD-2023-8915', clientName: 'Titan Contractors', startDate: '2023-10-27', endDate: '2023-11-05', price: 22400.00, priority: 'High', status: 'Confirmed', starred: false },
+  { id: 'ORD-2023-8916', clientName: 'Delta Builders', startDate: '2023-10-28', endDate: '2023-11-06', price: 18900.00, priority: 'Low', status: 'Confirmed', starred: true },
+  { id: 'ORD-2023-8917', clientName: 'Precision Infrastructure', startDate: '2023-10-28', endDate: '2023-11-08', price: 42000.00, priority: 'High', status: 'Confirmed', starred: false },
+  { id: 'ORD-2023-8918', clientName: 'Apex Sealants LLC', startDate: '2023-10-29', endDate: '2023-11-09', price: 9500.00, priority: 'Medium', status: 'Confirmed', starred: false },
+  { id: 'ORD-2023-8919', clientName: 'Nova Glass & Glazing', startDate: '2023-10-30', endDate: '2023-11-10', price: 15400.00, priority: 'Medium', status: 'Confirmed', starred: false },
+  { id: 'ORD-2023-8920', clientName: 'Metro Transit Group', startDate: '2023-10-30', endDate: '2023-11-12', price: 54000.00, priority: 'High', status: 'Confirmed', starred: true },
+  { id: 'ORD-2023-8921', clientName: 'Premier Facades Inc', startDate: '2023-11-01', endDate: '2023-11-14', price: 31000.00, priority: 'Low', status: 'Confirmed', starred: false },
+  { id: 'ORD-2023-8922', clientName: 'Evergreen Construction', startDate: '2023-11-02', endDate: '2023-11-15', price: 12500.00, priority: 'Medium', status: 'Confirmed', starred: false },
+  { id: 'ORD-2023-8923', clientName: 'Starlight Developers', startDate: '2023-11-03', endDate: '2023-11-16', price: 27500.00, priority: 'High', status: 'Confirmed', starred: false },
+
+  // In Production Status (10 orders)
+  { id: 'ORD-2023-8901', clientName: 'BuildCorp Industries', startDate: '2023-10-24', endDate: '2023-10-28', price: 45200.00, priority: 'High', status: 'In Production', starred: true },
+  { id: 'ORD-2023-8925', clientName: 'Summit Enterprises', startDate: '2023-10-24', endDate: '2023-10-29', price: 35000.00, priority: 'High', status: 'In Production', starred: false },
+  { id: 'ORD-2023-8926', clientName: 'Pioneer Developments', startDate: '2023-10-25', endDate: '2023-11-01', price: 16500.00, priority: 'Medium', status: 'In Production', starred: false },
+  { id: 'ORD-2023-8927', clientName: 'Integrity Structural LLC', startDate: '2023-10-25', endDate: '2023-11-02', price: 28000.00, priority: 'Medium', status: 'In Production', starred: false },
+  { id: 'ORD-2023-8928', clientName: 'Modern Windows Ltd', startDate: '2023-10-26', endDate: '2023-11-03', price: 8200.00, priority: 'Low', status: 'In Production', starred: false },
+  { id: 'ORD-2023-8929', clientName: 'Vanguard Engineering', startDate: '2023-10-26', endDate: '2023-11-04', price: 62000.00, priority: 'High', status: 'In Production', starred: true },
+  { id: 'ORD-2023-8930', clientName: 'Bayside Drywall Corp', startDate: '2023-10-27', endDate: '2023-11-05', price: 11000.00, priority: 'Low', status: 'In Production', starred: false },
+  { id: 'ORD-2023-8931', clientName: 'Eagle Precast Concrete', startDate: '2023-10-27', endDate: '2023-11-06', price: 47500.00, priority: 'High', status: 'In Production', starred: false },
+  { id: 'ORD-2023-8932', clientName: 'North Star Contracting', startDate: '2023-10-28', endDate: '2023-11-07', price: 19800.00, priority: 'Medium', status: 'In Production', starred: false },
+  { id: 'ORD-2023-8933', clientName: 'Ironwood Commercials', startDate: '2023-10-28', endDate: '2023-11-08', price: 34000.00, priority: 'Medium', status: 'In Production', starred: false },
+
+  // Testing Status (10 orders)
   { id: 'ORD-2023-8910', clientName: 'Global Adhesives Group', startDate: '2023-10-26', endDate: '2023-11-15', price: 8400.00, priority: 'Low', status: 'Testing', starred: false },
-  { id: 'ORD-2023-8912', clientName: 'Marine Tech Supply', startDate: '2023-10-26', endDate: '2023-11-05', price: 31500.00, priority: 'Medium', status: 'Packaging', starred: true }
+  { id: 'ORD-2023-8935', clientName: 'Horizon Glazing Corp', startDate: '2023-10-25', endDate: '2023-11-04', price: 14500.00, priority: 'Medium', status: 'Testing', starred: false },
+  { id: 'ORD-2023-8936', clientName: 'Velocity Logistics', startDate: '2023-10-25', endDate: '2023-11-05', price: 32000.00, priority: 'High', status: 'Testing', starred: true },
+  { id: 'ORD-2023-8937', clientName: 'Swift Retail Solutions', startDate: '2023-10-26', endDate: '2023-11-06', price: 7200.00, priority: 'Low', status: 'Testing', starred: false },
+  { id: 'ORD-2023-8938', clientName: 'Sterling Insulation', startDate: '2023-10-26', endDate: '2023-11-07', price: 21500.00, priority: 'Medium', status: 'Testing', starred: false },
+  { id: 'ORD-2023-8939', clientName: 'Apex Sealants LLC', startDate: '2023-10-27', endDate: '2023-11-08', price: 11800.00, priority: 'Low', status: 'Testing', starred: false },
+  { id: 'ORD-2023-8940', clientName: 'Beacon Infrastructure', startDate: '2023-10-27', endDate: '2023-11-09', price: 58000.00, priority: 'High', status: 'Testing', starred: true },
+  { id: 'ORD-2023-8941', clientName: 'Global Adhesives Group', startDate: '2023-10-28', endDate: '2023-11-10', price: 13900.00, priority: 'Medium', status: 'Testing', starred: false },
+  { id: 'ORD-2023-8942', clientName: 'Lakeside Constructors', startDate: '2023-10-28', endDate: '2023-11-11', price: 24500.00, priority: 'Medium', status: 'Testing', starred: false },
+  { id: 'ORD-2023-8943', clientName: 'Paramount Roofing', startDate: '2023-10-29', endDate: '2023-11-12', price: 41000.00, priority: 'High', status: 'Testing', starred: false },
+
+  // Packaging Status (10 orders)
+  { id: 'ORD-2023-8912', clientName: 'Marine Tech Supply', startDate: '2023-10-26', endDate: '2023-11-05', price: 31500.00, priority: 'Medium', status: 'Packaging', starred: true },
+  { id: 'ORD-2023-8945', clientName: 'Allied Mechanical Systems', startDate: '2023-10-24', endDate: '2023-11-02', price: 19400.00, priority: 'Medium', status: 'Packaging', starred: false },
+  { id: 'ORD-2023-8946', clientName: 'Dynamic Glass Inc', startDate: '2023-10-24', endDate: '2023-11-03', price: 28500.00, priority: 'High', status: 'Packaging', starred: false },
+  { id: 'ORD-2023-8947', clientName: 'Atlas Engineering Group', startDate: '2023-10-25', endDate: '2023-11-04', price: 52000.00, priority: 'High', status: 'Packaging', starred: true },
+  { id: 'ORD-2023-8948', clientName: 'Marine Tech Supply', startDate: '2023-10-25', endDate: '2023-11-05', price: 8900.00, priority: 'Low', status: 'Packaging', starred: false },
+  { id: 'ORD-2023-8949', clientName: 'Pacific Industrial Supply', startDate: '2023-10-26', endDate: '2023-11-06', price: 16000.00, priority: 'Medium', status: 'Packaging', starred: false },
+  { id: 'ORD-2023-8950', clientName: 'Redwood Framing Co', startDate: '2023-10-26', endDate: '2023-11-07', price: 11200.00, priority: 'Low', status: 'Packaging', starred: false },
+  { id: 'ORD-2023-8951', clientName: 'National Acoustic Panels', startDate: '2023-10-27', endDate: '2023-11-08', price: 22000.00, priority: 'Medium', status: 'Packaging', starred: false },
+  { id: 'ORD-2023-8952', clientName: 'Silverline Windows Corp', startDate: '2023-10-27', endDate: '2023-11-09', price: 43000.00, priority: 'High', status: 'Packaging', starred: false },
+  { id: 'ORD-2023-8953', clientName: 'Westcoast Developers', startDate: '2023-10-28', endDate: '2023-11-10', price: 31200.00, priority: 'High', status: 'Packaging', starred: false },
+
+  // Completed Status (10 orders)
+  { id: 'ORD-2023-8902', clientName: 'Apex Sealants LLC', startDate: '2023-10-15', endDate: '2023-10-22', price: 15400.00, priority: 'Low', status: 'Completed', starred: false },
+  { id: 'ORD-2023-8903', clientName: 'BuildCorp Industries', startDate: '2023-10-16', endDate: '2023-10-23', price: 24500.00, priority: 'Medium', status: 'Completed', starred: false },
+  { id: 'ORD-2023-8905', clientName: 'Global Adhesives Group', startDate: '2023-10-18', endDate: '2023-10-24', price: 18900.00, priority: 'High', status: 'Completed', starred: true },
+  { id: 'ORD-2023-8906', clientName: 'Marine Tech Supply', startDate: '2023-10-18', endDate: '2023-10-25', price: 34200.00, priority: 'Medium', status: 'Completed', starred: false },
+  { id: 'ORD-2023-8907', clientName: 'Pioneer Developments', startDate: '2023-10-19', endDate: '2023-10-26', price: 9200.00, priority: 'Low', status: 'Completed', starred: false },
+  { id: 'ORD-2023-8908', clientName: 'Summit Enterprises', startDate: '2023-10-20', endDate: '2023-10-27', price: 47800.00, priority: 'High', status: 'Completed', starred: true },
+  { id: 'ORD-2023-8909', clientName: 'Velocity Logistics', startDate: '2023-10-20', endDate: '2023-10-27', price: 12500.00, priority: 'Low', status: 'Completed', starred: false },
+  { id: 'ORD-2023-8911', clientName: 'Starlight Developers', startDate: '2023-10-22', endDate: '2023-10-28', price: 26800.00, priority: 'High', status: 'Completed', starred: false },
+  { id: 'ORD-2023-8913', clientName: 'Lakeside Constructors', startDate: '2023-10-22', endDate: '2023-10-29', price: 15400.00, priority: 'Medium', status: 'Completed', starred: false },
+  { id: 'ORD-2023-8914', clientName: 'Horizon Glazing Corp', startDate: '2023-10-23', endDate: '2023-10-30', price: 39000.00, priority: 'High', status: 'Completed', starred: false }
 ];
 
 const initialInventory = [
@@ -100,6 +156,10 @@ function App() {
   // State Mutators
   const handleAddClient = (client) => {
     setClients([client, ...clients]);
+  };
+
+  const handleAddInventoryItem = (item) => {
+    setInventory([item, ...inventory]);
   };
 
   const handleAddOrder = (order) => {
@@ -185,6 +245,7 @@ function App() {
             onToggleStar={handleToggleStar}
             onViewDetails={(type, data) => { setSelectedOrderDetail(data); setCurrentView('order-detail'); }}
             onCreateOrderClick={() => setCurrentView('create-order')}
+            onUpdateOrderStatus={handleUpdateOrderStatus}
           />
         );
       case 'order-detail':
@@ -216,6 +277,7 @@ function App() {
             inventoryItems={inventory}
             onToggleStar={handleToggleStar}
             onViewDetails={(type, data) => setActiveDrawer({ type, data })}
+            onAddMaterial={handleAddInventoryItem}
           />
         );
       case 'suppliers':
@@ -228,6 +290,13 @@ function App() {
         return (
           <ProductCatalogView
             user={user}
+          />
+        );
+      case 'failed-products':
+        return (
+          <FailedProductsView
+            user={user}
+            orders={orders}
           />
         );
       case 'profile':

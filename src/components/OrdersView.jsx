@@ -8,7 +8,13 @@ import {
   Star,
   Eye,
   Bell,
-  Globe
+  Globe,
+  Play,
+  FlaskConical,
+  Box,
+  CheckCircle,
+  RotateCw,
+  Trash2
 } from 'lucide-react';
 
 export default function OrdersView({
@@ -17,9 +23,10 @@ export default function OrdersView({
   onToggleStar,
   onViewDetails,
   onCreateOrderClick,
-  user
+  user,
+  onUpdateOrderStatus
 }) {
-  const [activeTab, setActiveTab] = useState('Active Orders');
+  const [activeTab, setActiveTab] = useState('Confirmed');
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -30,7 +37,7 @@ export default function OrdersView({
   const [price, setPrice] = useState('');
   const [priority, setPriority] = useState('Medium');
 
-  const tabs = ['Active Orders', 'Completed', 'Drafts', 'Cancellations'];
+  const tabs = ['Confirmed', 'In Production', 'Testing', 'Packaging', 'Completed'];
 
   const handleCreate = (e) => {
     e.preventDefault();
@@ -43,7 +50,7 @@ export default function OrdersView({
       endDate,
       price: parseFloat(price) || 0,
       priority,
-      status: activeTab === 'Active Orders' ? 'Active' : activeTab,
+      status: 'Confirmed',
       starred: false
     });
     setClientName('');
@@ -55,10 +62,7 @@ export default function OrdersView({
 
   const filteredOrders = orders.filter(order => {
     // Filter by tab
-    if (activeTab === 'Active Orders' && ['Completed', 'Draft', 'Cancelled'].includes(order.status)) return false;
-    if (activeTab === 'Completed' && order.status !== 'Completed') return false;
-    if (activeTab === 'Drafts' && order.status !== 'Draft') return false;
-    if (activeTab === 'Cancellations' && order.status !== 'Cancelled') return false;
+    if (order.status !== activeTab) return false;
 
     // Filter by search
     const matchesSearch =
@@ -151,7 +155,7 @@ export default function OrdersView({
                   <th>Est. End Date</th>
                   <th>Price</th>
                   <th>Priority</th>
-                  <th>Details</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -162,28 +166,130 @@ export default function OrdersView({
                     </td>
                   </tr>
                 ) : (
-                  filteredOrders.map((order) => (
-                    <tr key={order.id}>
-                      <td style={{ fontWeight: 600 }}>{order.id}</td>
-                      <td style={{ fontWeight: 500 }}>{order.clientName}</td>
-                      <td>{order.startDate}</td>
-                      <td>{order.endDate}</td>
-                      <td style={{ fontWeight: 600 }}>
-                        ₹{order.price.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </td>
-                      <td>
-                        <span className={`priority-tag priority-${order.priority.toLowerCase()}`}>
-                          {order.priority}
-                        </span>
-                      </td>
-                      <td>
-                        <button className="btn-table-action" onClick={() => onViewDetails('order', order)}>
-                          <Eye size={14} />
-                          <span>View</span>
-                        </button>
-                      </td>
-                    </tr>
-                  ))
+                  filteredOrders.map((order, index) => {
+                    const isSuggested = activeTab === 'Confirmed' && index < 4;
+                    const getNextStageInfo = (status) => {
+                      switch (status) {
+                        case 'Confirmed': return { next: 'In Production', label: 'Start Production', icon: Play, color: '#16a34a', bg: '#dcfce7', border: '#bbf7d0' };
+                        case 'In Production': return { next: 'Testing', label: 'Quality Test', icon: FlaskConical, color: '#2563eb', bg: '#dbeafe', border: '#93c5fd' };
+                        case 'Testing': return { next: 'Packaging', label: 'Pack', icon: Box, color: '#8b5cf6', bg: '#faf5ff', border: '#e9d5ff' };
+                        case 'Packaging': return { next: 'Completed', label: 'Complete', icon: CheckCircle, color: '#059669', bg: '#ecfdf5', border: '#a7f3d0' };
+                        default: return null;
+                      }
+                    };
+                    const nextStage = getNextStageInfo(order.status);
+
+                    return (
+                      <tr key={order.id} style={isSuggested ? { backgroundColor: '#f0fdf4' } : {}}>
+                        <td style={{ fontWeight: 600 }}>{order.id}</td>
+                        <td style={{ fontWeight: 500 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                            <span>{order.clientName}</span>
+                            {isSuggested && (
+                              <span style={{
+                                padding: '0.15rem 0.5rem',
+                                fontSize: '0.7rem',
+                                fontWeight: 700,
+                                borderRadius: '4px',
+                                backgroundColor: '#dcfce7',
+                                color: '#16a34a',
+                                border: '1px solid #bbf7d0',
+                                whiteSpace: 'nowrap'
+                              }}>
+                                Can move to production
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td>{order.startDate}</td>
+                        <td>{order.endDate}</td>
+                        <td style={{ fontWeight: 600 }}>
+                          ₹{order.price.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </td>
+                        <td>
+                          <span className={`priority-tag priority-${order.priority.toLowerCase()}`}>
+                            {order.priority}
+                          </span>
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                            <button className="btn-table-action" onClick={() => onViewDetails('order', order)}>
+                              <Eye size={14} />
+                              <span>View</span>
+                            </button>
+                            {nextStage ? (
+                              <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
+                                <button
+                                  className="btn-table-action"
+                                  style={{
+                                    color: nextStage.color,
+                                    backgroundColor: nextStage.bg,
+                                    borderColor: nextStage.border,
+                                    fontWeight: 600
+                                  }}
+                                  onClick={() => onUpdateOrderStatus && onUpdateOrderStatus(order.id, nextStage.next)}
+                                >
+                                  {(() => {
+                                    const IconComp = nextStage.icon;
+                                    return <IconComp size={14} />;
+                                  })()}
+                                  <span>{nextStage.label}</span>
+                                </button>
+                                {order.status === 'Testing' && (
+                                  <>
+                                    <button
+                                      className="btn-table-action"
+                                      style={{ color: '#0284c7', backgroundColor: '#f0f9ff', borderColor: '#bae6fd' }}
+                                      onClick={() => alert(`Blending initiated for Batch ${order.id}`)}
+                                    >
+                                      <RotateCw size={14} />
+                                      <span>Blend</span>
+                                    </button>
+                                    <button
+                                      className="btn-table-action"
+                                      style={{ color: '#d97706', backgroundColor: '#fffbeb', borderColor: '#fde68a' }}
+                                      onClick={() => alert(`Additives added to Batch ${order.id}`)}
+                                    >
+                                      <Plus size={14} />
+                                      <span>Additive</span>
+                                    </button>
+                                    <button
+                                      className="btn-table-action"
+                                      style={{ color: '#dc2626', backgroundColor: '#fef2f2', borderColor: '#fecaca' }}
+                                      onClick={() => {
+                                        if (confirm(`Are you sure you want to discard Batch ${order.id}? It will be logged in Failed Products.`)) {
+                                          onUpdateOrderStatus && onUpdateOrderStatus(order.id, 'Discarded');
+                                        }
+                                      }}
+                                    >
+                                      <Trash2 size={14} />
+                                      <span>Discard</span>
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            ) : (
+                              <span style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.25rem',
+                                fontSize: '0.8rem',
+                                color: '#16a34a',
+                                fontWeight: 600,
+                                padding: '0.25rem 0.5rem',
+                                backgroundColor: '#ecfdf5',
+                                borderRadius: '4px',
+                                border: '1px solid #a7f3d0'
+                              }}>
+                                <CheckCircle size={14} />
+                                Done
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>

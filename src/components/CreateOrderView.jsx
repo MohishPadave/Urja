@@ -8,8 +8,93 @@ import {
   UserCheck,
   Sparkles,
   Check,
-  ArrowLeft
+  ArrowLeft,
+  Package,
+  ChevronDown
 } from 'lucide-react';
+
+function CustomSelect({ options, value, onChange }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const normalizedOptions = options.map(opt => 
+    typeof opt === 'string' ? { value: opt, label: opt } : opt
+  );
+
+  const selectedOption = normalizedOptions.find(opt => opt.value === value) || normalizedOptions[0];
+
+  return (
+    <div style={{ position: 'relative', width: '100%' }}>
+      <button
+        type="button"
+        className="filter-select"
+        onClick={() => setIsOpen(!isOpen)}
+        style={{
+          width: '100%',
+          backgroundColor: 'white',
+          textAlign: 'left',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          cursor: 'pointer',
+          paddingRight: '1rem',
+          backgroundImage: 'none'
+        }}
+      >
+        <span>{selectedOption ? selectedOption.label : 'Select...'}</span>
+        <ChevronDown size={16} style={{ transition: 'transform 0.2s', transform: isOpen ? 'rotate(180deg)' : 'none', color: '#64748b' }} />
+      </button>
+
+      {isOpen && (
+        <>
+          <div 
+            onClick={() => setIsOpen(false)} 
+            style={{ position: 'fixed', top: 0, bottom: 0, left: 0, right: 0, zIndex: 999 }} 
+          />
+          <ul style={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            right: 0,
+            marginTop: '0.25rem',
+            backgroundColor: 'white',
+            border: '1px solid var(--border-color)',
+            borderRadius: '8px',
+            boxShadow: 'var(--shadow-lg)',
+            maxHeight: '220px',
+            overflowY: 'auto',
+            zIndex: 1000,
+            listStyle: 'none',
+            padding: '0.5rem 0',
+            margin: 0
+          }}>
+            {normalizedOptions.map((opt) => (
+              <li
+                key={opt.value}
+                onClick={() => {
+                  onChange(opt.value);
+                  setIsOpen(false);
+                }}
+                style={{
+                  padding: '0.65rem 1rem',
+                  fontSize: '0.9rem',
+                  color: opt.value === value ? 'var(--primary-color)' : 'var(--text-main)',
+                  fontWeight: opt.value === value ? 600 : 400,
+                  backgroundColor: opt.value === value ? '#f1f5f9' : 'transparent',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.15s'
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#f8fafc'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = opt.value === value ? '#f1f5f9' : 'transparent'}
+              >
+                {opt.label}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </div>
+  );
+}
 
 export default function CreateOrderView({ onSave, onCancel, clients }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -27,6 +112,8 @@ export default function CreateOrderView({ onSave, onCancel, clients }) {
 
   // Formula batch calculation state
   const [batchWeight, setBatchWeight] = useState(1000);
+  const [packagingMaterial, setPackagingMaterial] = useState('Cartridges (310ml)');
+  const [packagingQuantity, setPackagingQuantity] = useState(500);
 
   // Materials formula breakdown matching screenshot
   const baseFormula = [
@@ -50,7 +137,9 @@ export default function CreateOrderView({ onSave, onCancel, clients }) {
       productDetails: {
         collection,
         productLine,
-        batchWeight
+        batchWeight,
+        packagingMaterial,
+        packagingQuantity
       }
     });
   };
@@ -78,7 +167,7 @@ export default function CreateOrderView({ onSave, onCancel, clients }) {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           {/* 1. Client Details Section */}
-          <div className="table-card" style={{ padding: '1.5rem', margin: 0 }}>
+          <div className="table-card" style={{ padding: '1.5rem', margin: 0, overflow: 'visible' }}>
             <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.1rem', marginBottom: '1rem', color: '#1e293b' }}>
               <UserCheck size={18} style={{ color: 'var(--primary-color)' }} />
               1. Client Details
@@ -128,7 +217,7 @@ export default function CreateOrderView({ onSave, onCancel, clients }) {
           </div>
 
           {/* 2. Product Configuration Section */}
-          <div className="table-card" style={{ padding: '1.5rem', margin: 0 }}>
+          <div className="table-card" style={{ padding: '1.5rem', margin: 0, overflow: 'visible' }}>
             <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.1rem', marginBottom: '1rem', color: '#1e293b' }}>
               <Layers size={18} style={{ color: 'var(--primary-color)' }} />
               2. Product Configuration
@@ -137,32 +226,30 @@ export default function CreateOrderView({ onSave, onCancel, clients }) {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
               <div className="form-group">
                 <label className="form-label">Collection</label>
-                <select
-                  className="filter-select"
-                  style={{ width: '100%', backgroundColor: 'white' }}
+                <CustomSelect
+                  options={[
+                    { value: "Acrylic Sealants", label: "Acrylic Sealants" },
+                    { value: "GP Sealants", label: "GP Sealants" },
+                    { value: "Specialty Elastomers", label: "Specialty Elastomers" }
+                  ]}
                   value={collection}
-                  onChange={(e) => setCollection(e.target.value)}
-                >
-                  <option value="Acrylic Sealants">Acrylic Sealants</option>
-                  <option value="GP Sealants">GP Sealants</option>
-                  <option value="Specialty Elastomers">Specialty Elastomers</option>
-                </select>
+                  onChange={setCollection}
+                />
               </div>
 
               <div className="form-group">
                 <label className="form-label">Product Line</label>
-                <select
-                  className="filter-select"
-                  style={{ width: '100%', backgroundColor: 'white' }}
+                <CustomSelect
+                  options={[
+                    { value: "URJA Fire Stop", label: "URJA Fire Stop (White, Gray, Black)" },
+                    { value: "URJA High Temp", label: "URJA High Temperature (White, Gray, Black)" },
+                    { value: "NEXO GP", label: "NEXO Seal GP Sealant (White, Gray, Black)" },
+                    { value: "EXO GP", label: "EXO Seal GP Sealant (White, Gray, Black, 600ml)" },
+                    { value: "NEXO DS", label: "NEXO Seal DS (White, Gray, Black)" }
+                  ]}
                   value={productLine}
-                  onChange={(e) => setProductLine(e.target.value)}
-                >
-                  <option value="URJA Fire Stop">URJA Fire Stop (White, Gray, Black)</option>
-                  <option value="URJA High Temp">URJA High Temperature (White, Gray, Black)</option>
-                  <option value="NEXO GP">NEXO Seal GP Sealant (White, Gray, Black)</option>
-                  <option value="EXO GP">EXO Seal GP Sealant (White, Gray, Black, 600ml)</option>
-                  <option value="NEXO DS">NEXO Seal DS (White, Gray, Black)</option>
-                </select>
+                  onChange={setProductLine}
+                />
               </div>
             </div>
 
@@ -174,11 +261,49 @@ export default function CreateOrderView({ onSave, onCancel, clients }) {
             </div>
           </div>
 
-          {/* 3. Production Schedule Section */}
+          {/* 3. Packaging Configuration Section */}
+          <div className="table-card" style={{ padding: '1.5rem', margin: 0, overflow: 'visible' }}>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.1rem', marginBottom: '1rem', color: '#1e293b' }}>
+              <Package size={18} style={{ color: 'var(--primary-color)' }} />
+              3. Packaging Configuration
+            </h3>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div className="form-group">
+                <label className="form-label">Packing Material</label>
+                <CustomSelect
+                  options={[
+                    { value: "Cartridges (310ml)", label: "Cartridges (310ml)" },
+                    { value: "Sausages (600ml)", label: "Sausages (600ml)" },
+                    { value: "Pails (20kg)", label: "Pails (20kg)" },
+                    { value: "Drums (200kg)", label: "Drums (200kg)" },
+                    { value: "IBC Totes (1000kg)", label: "IBC Totes (1000kg)" },
+                    { value: "Cartons", label: "Cartons" }
+                  ]}
+                  value={packagingMaterial}
+                  onChange={setPackagingMaterial}
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Quantity (kg)</label>
+                <input
+                  type="number"
+                  className="filter-select"
+                  style={{ width: '100%', backgroundColor: 'white', backgroundImage: 'none', paddingRight: '1rem' }}
+                  value={packagingQuantity}
+                  onChange={(e) => setPackagingQuantity(e.target.value)}
+                  placeholder="e.g. 500"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* 4. Production Schedule Section */}
           <div className="table-card" style={{ padding: '1.5rem', margin: 0 }}>
             <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.1rem', marginBottom: '1rem', color: '#1e293b' }}>
               <Calendar size={18} style={{ color: 'var(--primary-color)' }} />
-              3. Production Schedule
+              4. Production Schedule
             </h3>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
@@ -204,11 +329,11 @@ export default function CreateOrderView({ onSave, onCancel, clients }) {
             </div>
           </div>
 
-          {/* 4. Estimated Costs Section */}
+          {/* 5. Estimated Costs Section */}
           <div className="table-card" style={{ padding: '1.5rem', margin: 0 }}>
             <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.1rem', marginBottom: '1rem', color: '#1e293b' }}>
               <Calculator size={18} style={{ color: 'var(--primary-color)' }} />
-              4. Estimated Costs & Materials
+              5. Estimated Costs & Materials
             </h3>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
@@ -238,11 +363,11 @@ export default function CreateOrderView({ onSave, onCancel, clients }) {
             </div>
           </div>
 
-          {/* 5. Product Formula (DS-88G) Section */}
+          {/* 6. Product Formula (DS-88G) Section */}
           <div className="table-card" style={{ padding: '1.5rem', margin: 0 }}>
             <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.1rem', marginBottom: '1rem', color: '#1e293b' }}>
               <Calculator size={18} style={{ color: 'var(--primary-color)' }} />
-              5. Product Formula (DS-88G)
+              6. Product Formula (DS-88G)
             </h3>
 
             <div className="table-wrapper">

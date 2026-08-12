@@ -5,7 +5,8 @@ export default function InventoryView({
   inventoryItems,
   onToggleStar,
   onViewDetails,
-  user
+  user,
+  onAddMaterial
 }) {
   const [activeTab, setActiveTab] = useState('Raw Materials');
   const [searchTerm, setSearchTerm] = useState('');
@@ -17,6 +18,57 @@ export default function InventoryView({
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+
+  // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newMaterialName, setNewMaterialName] = useState('');
+  const [newMaterialType, setNewMaterialType] = useState('Raw'); // 'Raw' or 'Packaging'
+  const [newMaterialCategory, setNewMaterialCategory] = useState('Resins');
+  const [newMaterialQuantity, setNewMaterialQuantity] = useState('');
+  const [newMaterialThreshold, setNewMaterialThreshold] = useState('');
+  const [newMaterialUnit, setNewMaterialUnit] = useState('kg');
+
+  const handleAddMaterialSubmit = (e) => {
+    e.preventDefault();
+    if (!newMaterialName || !newMaterialQuantity || !newMaterialThreshold) return;
+
+    const qty = parseFloat(newMaterialQuantity) || 0;
+    const threshold = parseFloat(newMaterialThreshold) || 0;
+    const isRaw = newMaterialType === 'Raw';
+    const randomIdNum = Math.floor(1000 + Math.random() * 9000);
+    const generatedId = isRaw ? `RM-${randomIdNum}` : `PM-${randomIdNum}`;
+
+    let status = 'Healthy';
+    if (qty <= threshold * 0.2) {
+      status = 'Critical';
+    } else if (qty < threshold) {
+      status = 'Low Stock';
+    }
+
+    const newItem = {
+      id: generatedId,
+      name: newMaterialName,
+      quantity: qty,
+      threshold: threshold,
+      status: status,
+      unit: newMaterialUnit,
+      category: newMaterialCategory,
+      type: newMaterialType,
+      starred: false,
+      lastUpdated: new Date().toISOString().split('T')[0]
+    };
+
+    onAddMaterial && onAddMaterial(newItem);
+
+    // Reset Form
+    setNewMaterialName('');
+    setNewMaterialType('Raw');
+    setNewMaterialCategory('Resins');
+    setNewMaterialQuantity('');
+    setNewMaterialThreshold('');
+    setNewMaterialUnit('kg');
+    setIsModalOpen(false);
+  };
 
   const categories = ['All', 'Resins', 'Silicone', 'Curing Agents', 'Emulsions', 'Additives', 'Containers', 'Boxes'];
 
@@ -97,7 +149,7 @@ export default function InventoryView({
       <div className="page-container">
         <div className="page-header">
           <h1 className="page-title">Inventory Dashboard</h1>
-          <button className="btn-primary" style={{ backgroundColor: 'var(--bg-sidebar)' }} onClick={() => alert('Add New Raw Material modal clicked')}>
+          <button className="btn-primary" style={{ backgroundColor: 'var(--bg-sidebar)' }} onClick={() => setIsModalOpen(true)}>
             <Plus size={18} />
             <span>Add New Raw Material</span>
           </button>
@@ -378,6 +430,132 @@ export default function InventoryView({
             </div>
           </div>
         </div>
+        {/* Add New Inventory Item Modal */}
+        {isModalOpen && (
+          <div className="modal-overlay">
+            <div className="modal-container" style={{ maxWidth: '480px' }}>
+              <div className="modal-header">
+                <h3 className="modal-title">Add Inventory Item</h3>
+                <button
+                  style={{ background: 'none', border: 'none', fontSize: '1.25rem', cursor: 'pointer' }}
+                  onClick={() => setIsModalOpen(false)}
+                >
+                  &times;
+                </button>
+              </div>
+              <form onSubmit={handleAddMaterialSubmit}>
+                <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '1.15rem' }}>
+                  <div className="form-group">
+                    <label className="form-label">Item Name</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="e.g. Acrysol-35 Emulsion"
+                      value={newMaterialName}
+                      onChange={(e) => setNewMaterialName(e.target.value)}
+                      required
+                      style={{ width: '100%', padding: '0.65rem 0.85rem', border: '1px solid var(--border-color)', borderRadius: '8px' }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <div className="form-group">
+                      <label className="form-label">Type</label>
+                      <select
+                        className="filter-select"
+                        style={{ width: '100%', backgroundColor: 'white' }}
+                        value={newMaterialType}
+                        onChange={(e) => {
+                          setNewMaterialType(e.target.value);
+                          setNewMaterialCategory(e.target.value === 'Raw' ? 'Resins' : 'Containers');
+                          setNewMaterialUnit(e.target.value === 'Raw' ? 'kg' : 'Units');
+                        }}
+                      >
+                        <option value="Raw">Raw Material</option>
+                        <option value="Packaging">Packaging</option>
+                      </select>
+                    </div>
+
+                    <div className="form-group">
+                      <label className="form-label">Category</label>
+                      {newMaterialType === 'Raw' ? (
+                        <select
+                          className="filter-select"
+                          style={{ width: '100%', backgroundColor: 'white' }}
+                          value={newMaterialCategory}
+                          onChange={(e) => setNewMaterialCategory(e.target.value)}
+                        >
+                          <option value="Resins">Resins</option>
+                          <option value="Emulsions">Emulsions</option>
+                          <option value="Additives">Additives</option>
+                          <option value="Curing Agents">Curing Agents</option>
+                        </select>
+                      ) : (
+                        <select
+                          className="filter-select"
+                          style={{ width: '100%', backgroundColor: 'white' }}
+                          value={newMaterialCategory}
+                          onChange={(e) => setNewMaterialCategory(e.target.value)}
+                        >
+                          <option value="Containers">Containers</option>
+                          <option value="Boxes">Boxes</option>
+                          <option value="Pallets">Pallets</option>
+                        </select>
+                      )}
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <div className="form-group">
+                      <label className="form-label">Initial Quantity</label>
+                      <input
+                        type="number"
+                        className="form-input"
+                        value={newMaterialQuantity}
+                        onChange={(e) => setNewMaterialQuantity(e.target.value)}
+                        placeholder="e.g. 1000"
+                        required
+                        style={{ width: '100%', padding: '0.65rem 0.85rem', border: '1px solid var(--border-color)', borderRadius: '8px' }}
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label className="form-label">Low Stock Threshold</label>
+                      <input
+                        type="number"
+                        className="form-input"
+                        value={newMaterialThreshold}
+                        onChange={(e) => setNewMaterialThreshold(e.target.value)}
+                        placeholder="e.g. 200"
+                        required
+                        style={{ width: '100%', padding: '0.65rem 0.85rem', border: '1px solid var(--border-color)', borderRadius: '8px' }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Measurement Unit</label>
+                    <select
+                      className="filter-select"
+                      style={{ width: '100%', backgroundColor: 'white' }}
+                      value={newMaterialUnit}
+                      onChange={(e) => setNewMaterialUnit(e.target.value)}
+                    >
+                      <option value="kg">kg (Kilogram)</option>
+                      <option value="L">L (Liter)</option>
+                      <option value="Units">Units</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="modal-footer" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1rem', marginTop: '1.25rem' }}>
+                  <button type="button" className="btn-outline" onClick={() => setIsModalOpen(false)}>Cancel</button>
+                  <button type="submit" className="btn-primary" style={{ backgroundColor: 'var(--primary-color)' }}>Add Item</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
         <footer className="page-footer">
           2026@ Orion Studios
         </footer>

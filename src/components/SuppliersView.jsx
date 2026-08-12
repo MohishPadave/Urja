@@ -81,7 +81,7 @@ export default function SuppliersView({ user }) {
               Manage vendor relationships and raw material sourcing.
             </p>
           </div>
-          <button className="btn-secondary" onClick={() => setIsModalOpen(true)}>
+          <button className="btn-secondary" style={{ backgroundColor: '#7c3aed', borderColor: '#7c3aed' }} onClick={() => setIsModalOpen(true)}>
             <Plus size={18} />
             <span>Add New Supplier</span>
           </button>

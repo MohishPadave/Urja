@@ -1856,3 +1856,57 @@ button, input, select, textarea {
     font-size: 1.05rem;
   }
 }
+
+/* Sidebar Mobile Responsiveness and Toggle Styles */
+.sidebar-mobile-toggle {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .sidebar-mobile-toggle {
+    display: flex;
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1000;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sidebar-panel {
+    position: fixed;
+    top: 0;
+    left: -260px; /* Start off-screen */
+    z-index: 999;
+    transition: left 0.3s ease;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .sidebar-panel.sidebar-open {
+    left: 0;
+  }
+
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(2px);
+    z-index: 998;
+  }
+
+  /* Adjust header padding to make space for mobile toggle button */
+  .top-navbar {
+    padding-left: 4.5rem !important;
+  }
+}
+
