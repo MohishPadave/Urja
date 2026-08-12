@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import { Search, Eye, Plus, Bell, Globe } from 'lucide-react';
+import { Search, Eye, Plus, Bell, Globe, SlidersHorizontal, Download, Calendar } from 'lucide-react';
 
-export default function ClientsView({ 
-  clients, 
-  onAddClient, 
+export default function ClientsView({
+  clients,
+  onAddClient,
   onViewDetails,
-  user 
+  user
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
   // Form State
   const [name, setName] = useState('');
   const [company, setCompany] = useState('');
@@ -33,9 +33,9 @@ export default function ClientsView({
   };
 
   const filteredClients = clients.filter(client => {
-    const matchesSearch = client.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          client.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          client.company.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      client.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      client.company.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
   });
 
@@ -43,8 +43,12 @@ export default function ClientsView({
     <div className="main-content">
       {/* Top Navbar */}
       <header className="top-navbar">
-        <div className="navbar-brand">Clients Directory</div>
+        <div className="navbar-brand"></div>
         <div className="navbar-actions">
+          <div className="navbar-search">
+            <Search size={16} className="navbar-search-icon" />
+            <input type="text" placeholder="Search orders, materials..." />
+          </div>
           <button className="icon-btn" onClick={() => alert('No new notifications')}>
             <Bell size={20} />
           </button>
@@ -55,11 +59,10 @@ export default function ClientsView({
         </div>
       </header>
 
-      {/* Main Area */}
       <div className="page-container">
         <div className="page-header">
           <h1 className="page-title">Clients</h1>
-          <button className="btn-secondary" onClick={() => setIsModalOpen(true)}>
+          <button className="btn-primary" style={{ backgroundColor: 'var(--bg-sidebar)' }} onClick={() => setIsModalOpen(true)}>
             <Plus size={18} />
             <span>Add New Client</span>
           </button>
@@ -70,23 +73,27 @@ export default function ClientsView({
           <div className="filters-left">
             <div className="search-input-wrapper">
               <Search size={18} />
-              <input 
-                type="text" 
-                placeholder="Search by name or ID" 
+              <input
+                type="text"
+                placeholder="Search clients by name, ID, or company..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <select 
-              className="filter-select"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <option value="All">All Statuses</option>
-              <option value="Active">Active Clients</option>
-              <option value="Inactive">Inactive Clients</option>
-            </select>
+            <button className="btn-outline" onClick={() => alert('Filter options opened')}>
+              <SlidersHorizontal size={16} />
+              <span>Filters</span>
+            </button>
+            <button className="btn-outline" onClick={() => alert('Select date range')}>
+              <Calendar size={16} />
+              <span>Date Range</span>
+            </button>
           </div>
+
+          <button className="btn-outline" onClick={() => alert('Clients list exported as CSV.')}>
+            <Download size={16} />
+            <span>Export CSV</span>
+          </button>
         </div>
 
         {/* Table Card */}
@@ -109,13 +116,13 @@ export default function ClientsView({
                     <td style={{ fontWeight: 700 }}>{client.name}</td>
                     <td>{client.company}</td>
                     <td>
-                      <span style={{ 
-                        backgroundColor: '#1e3a8a', 
-                        color: 'white', 
-                        padding: '0.2rem 0.6rem', 
-                        borderRadius: '12px', 
+                      <span style={{
+                        backgroundColor: '#1e3a8a',
+                        color: 'white',
+                        padding: '0.2rem 0.6rem',
+                        borderRadius: '12px',
                         fontSize: '0.75rem',
-                        fontWeight: '700' 
+                        fontWeight: '700'
                       }}>
                         {client.orders}
                       </span>
@@ -123,6 +130,7 @@ export default function ClientsView({
                     <td style={{ textAlign: 'center' }}>
                       <button className="btn-table-action" onClick={() => onViewDetails('client', client)}>
                         <Eye size={14} />
+                        <span>Details</span>
                       </button>
                     </td>
                   </tr>
@@ -154,7 +162,7 @@ export default function ClientsView({
           <div className="modal-container">
             <div className="modal-header">
               <h3 className="modal-title">Add New Client</h3>
-              <button 
+              <button
                 style={{ background: 'none', border: 'none', fontSize: '1.25rem', cursor: 'pointer' }}
                 onClick={() => setIsModalOpen(false)}
               >
@@ -165,9 +173,9 @@ export default function ClientsView({
               <div className="modal-body">
                 <div className="form-group">
                   <label className="form-label">Client Name</label>
-                  <input 
-                    type="text" 
-                    className="form-input" 
+                  <input
+                    type="text"
+                    className="form-input"
                     placeholder="e.g. Sarah Jenkins"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -176,9 +184,9 @@ export default function ClientsView({
                 </div>
                 <div className="form-group">
                   <label className="form-label">Company Name</label>
-                  <input 
-                    type="text" 
-                    className="form-input" 
+                  <input
+                    type="text"
+                    className="form-input"
                     placeholder="e.g. Apex Manufacturing"
                     value={company}
                     onChange={(e) => setCompany(e.target.value)}
@@ -187,9 +195,9 @@ export default function ClientsView({
                 </div>
                 <div className="form-group">
                   <label className="form-label">Initial Orders Count</label>
-                  <input 
-                    type="number" 
-                    className="form-input" 
+                  <input
+                    type="number"
+                    className="form-input"
                     value={ordersCount}
                     onChange={(e) => setOrdersCount(e.target.value)}
                     min="0"
@@ -204,6 +212,9 @@ export default function ClientsView({
           </div>
         </div>
       )}
-    </div>
-  );
+          <footer className="page-footer">
+            2026@ Orion Studios
+          </footer>
+        </div>
+      );
 }

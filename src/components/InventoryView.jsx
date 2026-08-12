@@ -1,16 +1,22 @@
 import React, { useState } from 'react';
-import { Search, Star, Eye, Bell, Globe } from 'lucide-react';
+import { Search, Star, Eye, Bell, Globe, Calendar, SlidersHorizontal, Download, ChevronDown, Plus } from 'lucide-react';
 
-export default function InventoryView({ 
-  inventoryItems, 
-  onToggleStar, 
+export default function InventoryView({
+  inventoryItems,
+  onToggleStar,
   onViewDetails,
-  user 
+  user
 }) {
   const [activeTab, setActiveTab] = useState('Raw Materials');
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [criticalOnly, setCriticalOnly] = useState(false);
+  const [lowStockOnly, setLowStockOnly] = useState(false);
+  const [showFilterPanel, setShowFilterPanel] = useState(false);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
   const categories = ['All', 'Resins', 'Silicone', 'Curing Agents', 'Emulsions', 'Additives', 'Containers', 'Boxes'];
 
@@ -21,8 +27,8 @@ export default function InventoryView({
     if (activeTab === 'Packaging Materials' && isRaw) return false;
 
     // Filter by search term
-    const matchesSearch = 
-      item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    const matchesSearch =
+      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.id.toLowerCase().includes(searchTerm.toLowerCase());
     if (!matchesSearch) return false;
 
@@ -32,15 +38,51 @@ export default function InventoryView({
     // Filter by Critical Status Only
     if (criticalOnly && item.status !== 'Critical') return false;
 
+    // Filter by Low Stock Status Only
+    if (lowStockOnly && item.status !== 'Low Stock') return false;
+
+    // Filter by Date Range
+    if (startDate && item.lastUpdated && item.lastUpdated < startDate) return false;
+    if (endDate && item.lastUpdated && item.lastUpdated > endDate) return false;
+
     return true;
   });
+
+  const handleExportCSV = () => {
+    const headers = ['ID', 'Name', 'Quantity', 'Threshold', 'Status'];
+    const rows = filteredItems.map(item => [
+      item.id,
+      item.name,
+      `${item.quantity} ${item.unit}`,
+      `${item.threshold} ${item.unit}`,
+      item.status
+    ]);
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(e => e.map(val => `"${val}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `inventory_export_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div className="main-content">
       {/* Top Navbar */}
       <header className="top-navbar">
-        <div className="navbar-brand">Inventory Desk</div>
+        <div className="navbar-brand"></div>
         <div className="navbar-actions">
+          <div className="navbar-search">
+            <Search size={16} className="navbar-search-icon" />
+            <input type="text" placeholder="Search orders, materials..." />
+          </div>
           <button className="icon-btn" onClick={() => alert('No new notifications')}>
             <Bell size={20} />
           </button>
@@ -55,17 +97,21 @@ export default function InventoryView({
       <div className="page-container">
         <div className="page-header">
           <h1 className="page-title">Inventory Dashboard</h1>
+          <button className="btn-primary" style={{ backgroundColor: 'var(--bg-sidebar)' }} onClick={() => alert('Add New Raw Material modal clicked')}>
+            <Plus size={18} />
+            <span>Add New Raw Material</span>
+          </button>
         </div>
 
         {/* Tabs */}
         <div className="tabs-nav">
-          <button 
+          <button
             className={`tab-item ${activeTab === 'Raw Materials' ? 'active' : ''}`}
             onClick={() => setActiveTab('Raw Materials')}
           >
             Raw Materials
           </button>
-          <button 
+          <button
             className={`tab-item ${activeTab === 'Packaging Materials' ? 'active' : ''}`}
             onClick={() => setActiveTab('Packaging Materials')}
           >
@@ -78,37 +124,191 @@ export default function InventoryView({
           <div className="filters-left">
             <div className="search-input-wrapper">
               <Search size={18} />
-              <input 
-                type="text" 
-                placeholder="Search by name or ID" 
+              <input
+                type="text"
+                placeholder="Search inventory items..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            
-            <select 
-              className="filter-select"
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-            >
-              {categories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat === 'All' ? 'All Categories' : cat}
-                </option>
-              ))}
-            </select>
 
-            <label className="checkbox-wrapper">
-              <input 
-                type="checkbox" 
+            <div className="custom-dropdown-container" style={{ position: 'relative', display: 'inline-block' }}>
+              <button
+                className="btn-outline"
+                style={{
+                  minWidth: '160px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  backgroundColor: 'white',
+                  height: '38px',
+                  borderRadius: '8px',
+                  border: '1px solid var(--border-color)',
+                  padding: '0 1rem',
+                  fontSize: '0.875rem',
+                  color: 'var(--text-main)',
+                  cursor: 'pointer'
+                }}
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              >
+                <span>{categoryFilter === 'All' ? 'All Categories' : categoryFilter}</span>
+                <ChevronDown size={16} style={{ color: 'var(--text-light)' }} />
+              </button>
+              {isDropdownOpen && (
+                <div style={{
+                  position: 'absolute',
+                  top: 'calc(100% + 4px)',
+                  left: 0,
+                  backgroundColor: 'white',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '8px',
+                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                  zIndex: 100,
+                  minWidth: '180px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  padding: '0.5rem 0',
+                  maxHeight: '260px',
+                  overflowY: 'auto'
+                }}>
+                  {categories.map((cat) => (
+                    <button
+                      key={cat}
+                      style={{
+                        padding: '0.6rem 1rem',
+                        textAlign: 'left',
+                        background: 'none',
+                        border: 'none',
+                        fontSize: '0.85rem',
+                        cursor: 'pointer',
+                        color: 'var(--text-main)',
+                        backgroundColor: categoryFilter === cat ? '#f1f5f9' : 'transparent',
+                        fontWeight: categoryFilter === cat ? '600' : '400',
+                        width: '100%',
+                        transition: 'background-color var(--transition-fast)'
+                      }}
+                      onClick={() => {
+                        setCategoryFilter(cat);
+                        setIsDropdownOpen(false);
+                      }}
+                      onMouseEnter={(e) => { if (categoryFilter !== cat) e.target.style.backgroundColor = '#f8fafc'; }}
+                      onMouseLeave={(e) => { if (categoryFilter !== cat) e.target.style.backgroundColor = 'transparent'; }}
+                    >
+                      {cat === 'All' ? 'All Categories' : cat}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+
+            <button
+              className={`btn-outline ${showFilterPanel ? 'active' : ''}`}
+              style={showFilterPanel ? { backgroundColor: '#f1f5f9', borderColor: 'var(--border-focus)' } : {}}
+              onClick={() => setShowFilterPanel(!showFilterPanel)}
+            >
+              <SlidersHorizontal size={16} />
+              <span>Filters</span>
+            </button>
+            <div className="custom-dropdown-container" style={{ position: 'relative', display: 'inline-block' }}>
+              <button
+                className={`btn-outline ${isDatePickerOpen ? 'active' : ''}`}
+                style={isDatePickerOpen ? { backgroundColor: '#f1f5f9', borderColor: 'var(--border-focus)' } : {}}
+                onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
+              >
+                <Calendar size={16} />
+                <span>{startDate || endDate ? `${startDate || 'Start'} to ${endDate || 'End'}` : 'Date Range'}</span>
+              </button>
+              {isDatePickerOpen && (
+                <div style={{
+                  position: 'absolute',
+                  top: 'calc(100% + 4px)',
+                  left: 0,
+                  backgroundColor: 'white',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '8px',
+                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                  zIndex: 100,
+                  padding: '1.25rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '1rem',
+                  minWidth: '240px'
+                }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                    <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-light)', textAlign: 'left' }}>START DATE</label>
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      style={{ padding: '0.5rem', borderRadius: '6px', border: '1px solid #d1d5db', outline: 'none', fontSize: '0.875rem', width: '100%' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                    <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-light)', textAlign: 'left' }}>END DATE</label>
+                    <input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      style={{ padding: '0.5rem', borderRadius: '6px', border: '1px solid #d1d5db', outline: 'none', fontSize: '0.875rem', width: '100%' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '0.25rem' }}>
+                    {(startDate || endDate) && (
+                      <button
+                        className="btn-outline"
+                        style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem', height: 'auto' }}
+                        onClick={() => {
+                          setStartDate('');
+                          setEndDate('');
+                          setIsDatePickerOpen(false);
+                        }}
+                      >
+                        Reset
+                      </button>
+                    )}
+                    <button
+                      className="btn-primary"
+                      style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem', height: 'auto', backgroundColor: 'var(--bg-sidebar)' }}
+                      onClick={() => setIsDatePickerOpen(false)}
+                    >
+                      Apply
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <button className="btn-outline" onClick={handleExportCSV}>
+            <Download size={16} />
+            <span>Export CSV</span>
+          </button>
+        </div>
+
+        {showFilterPanel && (
+          <div className="filter-card" style={{ marginTop: '-0.75rem', borderTopLeftRadius: 0, borderTopRightRadius: 0, borderTop: 'none', display: 'flex', gap: '2rem', padding: '1rem 1.5rem', animation: 'slideDown 0.2s ease-out' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
                 checked={criticalOnly}
                 onChange={(e) => setCriticalOnly(e.target.checked)}
+                style={{ width: '16px', height: '16px', cursor: 'pointer' }}
               />
-              <Star size={16} className="star-icon" style={{ fill: '#f59e0b', stroke: '#f59e0b' }} />
-              <span>Critical Only</span>
+              <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-main)' }}>Critical Status Only</span>
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={lowStockOnly}
+                onChange={(e) => setLowStockOnly(e.target.checked)}
+                style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+              />
+              <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-main)' }}>Low Stock Only</span>
             </label>
           </div>
-        </div>
+        )}
 
         {/* Table Card */}
         <div className="table-card">
@@ -116,7 +316,6 @@ export default function InventoryView({
             <table className="custom-table">
               <thead>
                 <tr>
-                  <th style={{ width: '40px' }}></th>
                   <th>ID</th>
                   <th>Name</th>
                   <th>Quantity</th>
@@ -128,23 +327,16 @@ export default function InventoryView({
               <tbody>
                 {filteredItems.length === 0 ? (
                   <tr>
-                    <td colSpan="7" style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
+                    <td colSpan="6" style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
                       No items match the filter settings.
                     </td>
                   </tr>
                 ) : (
                   filteredItems.map((item) => (
-                    <tr 
+                    <tr
                       key={item.id}
-                      className={item.status === 'Critical' ? 'row-critical' : item.status === 'Low Stock' ? 'row-low-stock' : ''}
+                      className={item.status === 'Critical' ? 'row-critical' : item.status === 'Low Stock' ? 'row-low-stock' : item.status === 'Healthy' ? 'row-healthy' : ''}
                     >
-                      <td>
-                        <Star 
-                          size={18} 
-                          className={item.starred ? 'star-icon' : 'star-empty'}
-                          onClick={() => onToggleStar(item.id)}
-                        />
-                      </td>
                       <td style={{ fontWeight: 600 }}>{item.id}</td>
                       <td style={{ fontWeight: 700 }}>{item.name}</td>
                       <td style={{ fontWeight: 600 }}>
@@ -186,6 +378,9 @@ export default function InventoryView({
             </div>
           </div>
         </div>
+        <footer className="page-footer">
+          2026@ Orion Studios
+        </footer>
       </div>
     </div>
   );

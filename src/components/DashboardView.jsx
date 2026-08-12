@@ -1,31 +1,68 @@
-import React from 'react';
-import { 
-  FileText, 
-  AlertTriangle, 
-  FlaskConical, 
-  Activity, 
-  Plus, 
-  ClipboardCheck, 
-  Wrench, 
-  Octagon, 
-  TrendingUp, 
-  Search, 
-  Bell, 
-  Globe 
+import React, { useState } from 'react';
+import {
+  FileText,
+  AlertTriangle,
+  FlaskConical,
+  Activity,
+  Plus,
+  ClipboardCheck,
+  Wrench,
+  Octagon,
+  TrendingUp,
+  Search,
+  Bell,
+  Globe,
+  Calendar
 } from 'lucide-react';
 
-export default function DashboardView({ 
-  onAction, 
-  productionLogs, 
-  isSystemHalted, 
+const COLUMNS = [
+  { id: 'Confirmed', title: 'Confirmed', dotClass: 'confirmed' },
+  { id: 'In Production', title: 'In Production', dotClass: 'production' },
+  { id: 'Testing', title: 'Testing', dotClass: 'testing' },
+  { id: 'Packaging', title: 'Packaging', dotClass: 'packaging' },
+  { id: 'Completed', title: 'Completed', dotClass: 'completed' }
+];
+
+export default function DashboardView({
+  onAction,
+  orders = [],
+  onUpdateOrderStatus,
+  onToggleStar,
+  isSystemHalted,
   onHaltToggle,
-  user 
+  user
 }) {
+  const [dragOverColumn, setDragOverColumn] = useState(null);
+
+  const handleDragStart = (e, orderId) => {
+    e.dataTransfer.setData('text/plain', orderId);
+  };
+
+  const handleDragOver = (e, columnId) => {
+    e.preventDefault();
+    if (dragOverColumn !== columnId) {
+      setDragOverColumn(columnId);
+    }
+  };
+
+  const handleDragLeave = () => {
+    setDragOverColumn(null);
+  };
+
+  const handleDrop = (e, targetStatus) => {
+    e.preventDefault();
+    const orderId = e.dataTransfer.getData('text/plain');
+    if (orderId && onUpdateOrderStatus) {
+      onUpdateOrderStatus(orderId, targetStatus);
+    }
+    setDragOverColumn(null);
+  };
+
   return (
     <div className="main-content">
       {/* Top Navbar */}
       <header className="top-navbar">
-        <div className="navbar-brand">Urja Sealants</div>
+        <div className="navbar-brand"></div>
         <div className="navbar-actions">
           <div className="navbar-search">
             <Search size={16} className="navbar-search-icon" />
@@ -64,7 +101,7 @@ export default function DashboardView({
           <div className="stat-card">
             <div className="stat-content">
               <h4>Active Orders</h4>
-              <div className="stat-number">124</div>
+              <div className="stat-number">{orders.filter(o => o.status !== 'Completed').length}</div>
               <div className="stat-trend trend-up">
                 <TrendingUp size={14} />
                 <span>12% from yesterday</span>
@@ -115,79 +152,73 @@ export default function DashboardView({
           </div>
         </div>
 
-        {/* Dashboard 2-column content */}
-        <div className="dashboard-columns">
-          {/* Left Column: Recent Production Logs */}
-          <div className="dashboard-column-left">
-            <div className="table-card" style={{ margin: 0 }}>
-              <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 className="dashboard-section-title">Recent Production Logs</h3>
-                <button className="btn-outline" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}>View All</button>
-              </div>
-              <div className="table-wrapper">
-                <table className="custom-table">
-                  <thead>
-                    <tr>
-                      <th>Batch ID</th>
-                      <th>Product</th>
-                      <th>Status</th>
-                      <th>Time</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {productionLogs.map((log) => (
-                      <tr key={log.id}>
-                        <td style={{ fontWeight: 600 }}>{log.id}</td>
-                        <td>{log.product}</td>
-                        <td>
-                          <span className={`badge badge-${log.status.toLowerCase().replace(' ', '-')}`}>
-                            {log.status}
-                          </span>
-                        </td>
-                        <td style={{ color: 'var(--text-muted)' }}>{log.time}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column: Quick Actions */}
-          <div className="quick-actions-card">
-            <h3 className="dashboard-section-title">Quick Actions</h3>
-            
-            <button className="quick-action-btn quick-action-btn-primary" onClick={() => onAction('new-order')}>
-              <Plus size={18} />
+        {/* Kanban Board Area */}
+        <div className="kanban-board-wrapper">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+            <h3 className="dashboard-section-title">Production Status Kanban Board</h3>
+            <button className="btn-primary" onClick={() => onAction('new-order')}>
+              <Plus size={16} />
               <span>New Order</span>
             </button>
+          </div>
 
-            <button className="quick-action-btn quick-action-btn-neutral" onClick={() => onAction('log-material')}>
-              <ClipboardCheck size={18} />
-              <span>Log Material Receipt</span>
-            </button>
+          <div className="kanban-container">
+            {COLUMNS.map((column) => {
+              const columnOrders = orders.filter(o => o.status === column.id);
+              const isOver = dragOverColumn === column.id;
 
-            <button className="quick-action-btn quick-action-btn-neutral" onClick={() => onAction('maintenance')}>
-              <Wrench size={18} />
-              <span>Maintenance Request</span>
-            </button>
+              return (
+                <div
+                  key={column.id}
+                  className={`kanban-column col-${column.dotClass} ${isOver ? 'drag-over' : ''}`}
+                  onDragOver={(e) => handleDragOver(e, column.id)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e, column.id)}
+                >
+                  <div className="kanban-column-header">
+                    <div className="kanban-column-title-wrapper">
+                      <span className={`kanban-column-dot ${column.dotClass}`}></span>
+                      <span className="kanban-column-title">{column.title}</span>
+                    </div>
+                    <span className="kanban-column-badge">{columnOrders.length}</span>
+                  </div>
 
-            <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem' }}>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.75rem', lineHeight: '1.4' }}>
-                Emergency contact for plant floor issues.
-              </p>
-              <button 
-                className="emergency-btn" 
-                style={{ width: '100%', backgroundColor: isSystemHalted ? '#10b981' : '#f97316' }}
-                onClick={onHaltToggle}
-              >
-                <Octagon size={18} />
-                <span>{isSystemHalted ? 'Resume Production' : 'Halt Production Line'}</span>
-              </button>
-            </div>
+                  <div className="kanban-cards-list">
+                    {columnOrders.map((order) => (
+                      <div
+                        key={order.id}
+                        className="kanban-card"
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, order.id)}
+                      >
+                        <div className="kanban-card-header">
+                          <span className="kanban-card-id">{order.id}</span>
+                          <span className={`priority-tag priority-${order.priority.toLowerCase()}`}>
+                            {order.priority}
+                          </span>
+                        </div>
+                        <div className="kanban-card-client">{order.clientName}</div>
+                        <div className="kanban-card-price">
+                          ₹{order.price.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </div>
+                        <div className="kanban-card-footer">
+                          <span className="kanban-card-date">
+                            <Calendar size={12} />
+                            <span>{order.endDate}</span>
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
+      <footer className="page-footer">
+        2026@ Orion Studios
+      </footer>
     </div>
   );
 }

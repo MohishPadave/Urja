@@ -35,7 +35,7 @@ export default function OrderDetailView({ order, onBack, onToggleStar, user }) {
 
       {/* Main Page Area */}
       <div className="page-container" style={{ paddingBottom: '4rem' }}>
-        
+
         {/* Breadcrumbs */}
         <div className="breadcrumbs-row">
           <span onClick={onBack}>Orders</span>
@@ -48,13 +48,13 @@ export default function OrderDetailView({ order, onBack, onToggleStar, user }) {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
               <h1 className="page-title" style={{ margin: 0 }}>Order #{order.id}</h1>
-              
+
               <span className={`priority-tag priority-medium`} style={{ backgroundColor: '#ea580c', borderRadius: '6px', padding: '0.25rem 0.6rem' }}>
                 High Priority
               </span>
-              
-              <Star 
-                size={22} 
+
+              <Star
+                size={22}
                 className={order.starred ? 'star-icon' : 'star-empty'}
                 style={{ cursor: 'pointer' }}
                 onClick={() => onToggleStar(order.id)}
@@ -73,13 +73,13 @@ export default function OrderDetailView({ order, onBack, onToggleStar, user }) {
 
         {/* Tabs */}
         <div className="tabs-nav">
-          <button 
+          <button
             className={`tab-item ${activeTab === 'Order Info' ? 'active' : ''}`}
             onClick={() => setActiveTab('Order Info')}
           >
             Order Info
           </button>
-          <button 
+          <button
             className={`tab-item ${activeTab === 'Progress Timeline' ? 'active' : ''}`}
             onClick={() => setActiveTab('Progress Timeline')}
           >
@@ -91,7 +91,7 @@ export default function OrderDetailView({ order, onBack, onToggleStar, user }) {
         {activeTab === 'Order Info' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem' }}>
-              
+
               {/* Order Summary */}
               <div className="table-card" style={{ padding: '1.5rem', margin: 0 }}>
                 <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.1rem', marginBottom: '1.25rem', color: '#1e293b', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
@@ -114,7 +114,7 @@ export default function OrderDetailView({ order, onBack, onToggleStar, user }) {
                   <div>
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-light)', fontWeight: 700, textTransform: 'uppercase' }}>Total Value</span>
                     <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--primary-color)', marginTop: '0.25rem' }}>
-                      ${order.price.toLocaleString('en-US', { minimumFractionDigits: 2 })} USD
+                      ₹{order.price.toLocaleString('en-IN', { minimumFractionDigits: 2 })} INR
                     </h4>
                   </div>
                 </div>
@@ -196,7 +196,7 @@ export default function OrderDetailView({ order, onBack, onToggleStar, user }) {
             <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '2rem', color: '#1e293b' }}>Production Milestones</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', position: 'relative', paddingLeft: '2rem' }}>
               <div style={{ position: 'absolute', left: '7px', top: '10px', bottom: '10px', width: '2px', backgroundColor: '#e2e8f0' }}></div>
-              
+
               <div style={{ position: 'relative' }}>
                 <div style={{ position: 'absolute', left: '-27px', top: '2px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: '#10b981', display: 'flex', alignItems: 'center', justifyContents: 'center' }}></div>
                 <h4 style={{ fontWeight: 700, fontSize: '0.95rem' }}>Raw Materials Allocated</h4>

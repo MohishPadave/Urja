@@ -1,23 +1,23 @@
 import React, { useState } from 'react';
-import { 
-  Search, 
-  Plus, 
-  SlidersHorizontal, 
-  Calendar, 
-  Download, 
-  Star, 
-  Eye, 
-  Bell, 
-  Globe 
+import {
+  Search,
+  Plus,
+  SlidersHorizontal,
+  Calendar,
+  Download,
+  Star,
+  Eye,
+  Bell,
+  Globe
 } from 'lucide-react';
 
-export default function OrdersView({ 
-  orders, 
-  onAddOrder, 
-  onToggleStar, 
+export default function OrdersView({
+  orders,
+  onAddOrder,
+  onToggleStar,
   onViewDetails,
   onCreateOrderClick,
-  user 
+  user
 }) {
   const [activeTab, setActiveTab] = useState('Active Orders');
   const [searchTerm, setSearchTerm] = useState('');
@@ -55,16 +55,16 @@ export default function OrdersView({
 
   const filteredOrders = orders.filter(order => {
     // Filter by tab
-    if (activeTab === 'Active Orders' && order.status !== 'Active') return false;
+    if (activeTab === 'Active Orders' && ['Completed', 'Draft', 'Cancelled'].includes(order.status)) return false;
     if (activeTab === 'Completed' && order.status !== 'Completed') return false;
     if (activeTab === 'Drafts' && order.status !== 'Draft') return false;
     if (activeTab === 'Cancellations' && order.status !== 'Cancelled') return false;
 
     // Filter by search
-    const matchesSearch = 
-      order.id.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    const matchesSearch =
+      order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.clientName.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     return matchesSearch;
   });
 
@@ -72,8 +72,12 @@ export default function OrdersView({
     <div className="main-content">
       {/* Top Navbar */}
       <header className="top-navbar">
-        <div className="navbar-brand">Orders Desk</div>
+        <div className="navbar-brand"></div>
         <div className="navbar-actions">
+          <div className="navbar-search">
+            <Search size={16} className="navbar-search-icon" />
+            <input type="text" placeholder="Search orders, materials..." />
+          </div>
           <button className="icon-btn" onClick={() => alert('No new notifications')}>
             <Bell size={20} />
           </button>
@@ -112,9 +116,9 @@ export default function OrdersView({
           <div className="filters-left">
             <div className="search-input-wrapper">
               <Search size={18} />
-              <input 
-                type="text" 
-                placeholder="Search orders by ID, Client, or Product..." 
+              <input
+                type="text"
+                placeholder="Search orders by ID, Client, or Product..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -128,7 +132,7 @@ export default function OrdersView({
               <span>Date Range</span>
             </button>
           </div>
-          
+
           <button className="btn-outline" onClick={() => alert('Orders exported as CSV.')}>
             <Download size={16} />
             <span>Export CSV</span>
@@ -141,7 +145,6 @@ export default function OrdersView({
             <table className="custom-table">
               <thead>
                 <tr>
-                  <th style={{ width: '40px' }}></th>
                   <th>Order ID</th>
                   <th>Client Name</th>
                   <th>Start Date</th>
@@ -154,26 +157,19 @@ export default function OrdersView({
               <tbody>
                 {filteredOrders.length === 0 ? (
                   <tr>
-                    <td colSpan="8" style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
+                    <td colSpan="7" style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
                       No orders found matching the filter criteria.
                     </td>
                   </tr>
                 ) : (
                   filteredOrders.map((order) => (
                     <tr key={order.id}>
-                      <td>
-                        <Star 
-                          size={18} 
-                          className={order.starred ? 'star-icon' : 'star-empty'}
-                          onClick={() => onToggleStar(order.id)}
-                        />
-                      </td>
                       <td style={{ fontWeight: 600 }}>{order.id}</td>
                       <td style={{ fontWeight: 500 }}>{order.clientName}</td>
                       <td>{order.startDate}</td>
                       <td>{order.endDate}</td>
                       <td style={{ fontWeight: 600 }}>
-                        ${order.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        ₹{order.price.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </td>
                       <td>
                         <span className={`priority-tag priority-${order.priority.toLowerCase()}`}>
@@ -216,7 +212,7 @@ export default function OrdersView({
           <div className="modal-container">
             <div className="modal-header">
               <h3 className="modal-title">New Order Entry</h3>
-              <button 
+              <button
                 style={{ background: 'none', border: 'none', fontSize: '1.25rem', cursor: 'pointer' }}
                 onClick={() => setIsModalOpen(false)}
               >
@@ -227,22 +223,22 @@ export default function OrdersView({
               <div className="modal-body">
                 <div className="form-group">
                   <label className="form-label">Client Name</label>
-                  <input 
-                    type="text" 
-                    className="form-input" 
+                  <input
+                    type="text"
+                    className="form-input"
                     placeholder="e.g. BuildCorp Industries"
                     value={clientName}
                     onChange={(e) => setClientName(e.target.value)}
                     required
                   />
                 </div>
-                
+
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div className="form-group">
                     <label className="form-label">Start Date</label>
-                    <input 
-                      type="date" 
-                      className="form-input" 
+                    <input
+                      type="date"
+                      className="form-input"
                       value={startDate}
                       onChange={(e) => setStartDate(e.target.value)}
                       required
@@ -250,9 +246,9 @@ export default function OrdersView({
                   </div>
                   <div className="form-group">
                     <label className="form-label">Est. End Date</label>
-                    <input 
-                      type="date" 
-                      className="form-input" 
+                    <input
+                      type="date"
+                      className="form-input"
                       value={endDate}
                       onChange={(e) => setEndDate(e.target.value)}
                       required
@@ -262,10 +258,10 @@ export default function OrdersView({
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '1rem' }}>
                   <div className="form-group">
-                    <label className="form-label">Price ($ USD)</label>
-                    <input 
-                      type="number" 
-                      className="form-input" 
+                    <label className="form-label">Price (₹ INR)</label>
+                    <input
+                      type="number"
+                      className="form-input"
                       placeholder="e.g. 45200"
                       value={price}
                       onChange={(e) => setPrice(e.target.value)}
@@ -274,7 +270,7 @@ export default function OrdersView({
                   </div>
                   <div className="form-group">
                     <label className="form-label">Priority</label>
-                    <select 
+                    <select
                       className="filter-select"
                       style={{ width: '100%', minWidth: 'auto', backgroundColor: 'white' }}
                       value={priority}
@@ -295,6 +291,9 @@ export default function OrdersView({
           </div>
         </div>
       )}
-    </div>
-  );
+          <footer className="page-footer">
+            2026@ Orion Studios
+          </footer>
+        </div>
+      );
 }

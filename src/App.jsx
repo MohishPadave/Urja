@@ -19,23 +19,23 @@ const initialClients = [
 ];
 
 const initialOrders = [
-  { id: 'ORD-2023-8901', clientName: 'BuildCorp Industries', startDate: '2023-10-24', endDate: '2023-10-28', price: 45200.00, priority: 'High', status: 'Active', starred: true },
-  { id: 'ORD-2023-8904', clientName: 'Apex Sealants LLC', startDate: '2023-10-25', endDate: '2023-11-02', price: 12850.00, priority: 'Medium', status: 'Active', starred: false },
-  { id: 'ORD-2023-8910', clientName: 'Global Adhesives Group', startDate: '2023-10-26', endDate: '2023-11-15', price: 8400.00, priority: 'Low', status: 'Active', starred: false },
-  { id: 'ORD-2023-8912', clientName: 'Marine Tech Supply', startDate: '2023-10-26', endDate: '2023-11-05', price: 31500.00, priority: 'Medium', status: 'Active', starred: true }
+  { id: 'ORD-2023-8901', clientName: 'BuildCorp Industries', startDate: '2023-10-24', endDate: '2023-10-28', price: 45200.00, priority: 'High', status: 'In Production', starred: true },
+  { id: 'ORD-2023-8904', clientName: 'Apex Sealants LLC', startDate: '2023-10-25', endDate: '2023-11-02', price: 12850.00, priority: 'Medium', status: 'Confirmed', starred: false },
+  { id: 'ORD-2023-8910', clientName: 'Global Adhesives Group', startDate: '2023-10-26', endDate: '2023-11-15', price: 8400.00, priority: 'Low', status: 'Testing', starred: false },
+  { id: 'ORD-2023-8912', clientName: 'Marine Tech Supply', startDate: '2023-10-26', endDate: '2023-11-05', price: 31500.00, priority: 'Medium', status: 'Packaging', starred: true }
 ];
 
 const initialInventory = [
-  { id: 'RM-1042', name: 'Industrial Silicone Base X2', quantity: 120, threshold: 500, status: 'Critical', unit: 'L', category: 'Silicone', type: 'Raw', starred: true },
-  { id: 'RM-2099', name: 'Polyurethane Resin A', quantity: 4500, threshold: 1000, status: 'Healthy', unit: 'kg', category: 'Resins', type: 'Raw', starred: false },
-  { id: 'RM-0551', name: 'Curing Agent B-Plus', quantity: 850, threshold: 1000, status: 'Low Stock', unit: 'kg', category: 'Curing Agents', type: 'Raw', starred: false },
-  { id: 'RM-3102', name: 'Acrylic Emulsion', quantity: 2200, threshold: 800, status: 'Healthy', unit: 'L', category: 'Emulsions', type: 'Raw', starred: false },
-  { id: 'RM-1188', name: 'Premium Titanium Dioxide', quantity: 450, threshold: 600, status: 'Low Stock', unit: 'kg', category: 'Additives', type: 'Raw', starred: true },
-  
+  { id: 'RM-1042', name: 'Industrial Silicone Base X2', quantity: 120, threshold: 500, status: 'Critical', unit: 'L', category: 'Silicone', type: 'Raw', starred: true, lastUpdated: '2023-10-24' },
+  { id: 'RM-2099', name: 'Polyurethane Resin A', quantity: 4500, threshold: 1000, status: 'Healthy', unit: 'kg', category: 'Resins', type: 'Raw', starred: false, lastUpdated: '2023-10-25' },
+  { id: 'RM-0551', name: 'Curing Agent B-Plus', quantity: 850, threshold: 1000, status: 'Low Stock', unit: 'kg', category: 'Curing Agents', type: 'Raw', starred: false, lastUpdated: '2023-10-26' },
+  { id: 'RM-3102', name: 'Acrylic Emulsion', quantity: 2200, threshold: 800, status: 'Healthy', unit: 'L', category: 'Emulsions', type: 'Raw', starred: false, lastUpdated: '2023-10-27' },
+  { id: 'RM-1188', name: 'Premium Titanium Dioxide', quantity: 450, threshold: 600, status: 'Low Stock', unit: 'kg', category: 'Additives', type: 'Raw', starred: true, lastUpdated: '2023-10-28' },
+
   // Packaging Materials
-  { id: 'PM-2010', name: 'Plastic Sealant Cartridges 310ml', quantity: 12000, threshold: 5000, status: 'Healthy', unit: 'Units', category: 'Containers', type: 'Packaging', starred: false },
-  { id: 'PM-3040', name: 'Aluminum Foil Bags (Aerosol)', quantity: 800, threshold: 1500, status: 'Critical', unit: 'Units', category: 'Containers', type: 'Packaging', starred: true },
-  { id: 'PM-4050', name: 'Corrugated Shipping Boxes (L)', quantity: 4200, threshold: 2000, status: 'Healthy', unit: 'Units', category: 'Boxes', type: 'Packaging', starred: false }
+  { id: 'PM-2010', name: 'Plastic Sealant Cartridges 310ml', quantity: 12000, threshold: 5000, status: 'Healthy', unit: 'Units', category: 'Containers', type: 'Packaging', starred: false, lastUpdated: '2023-10-29' },
+  { id: 'PM-3040', name: 'Aluminum Foil Bags (Aerosol)', quantity: 800, threshold: 1500, status: 'Critical', unit: 'Units', category: 'Containers', type: 'Packaging', starred: true, lastUpdated: '2023-10-30' },
+  { id: 'PM-4050', name: 'Corrugated Shipping Boxes (L)', quantity: 4200, threshold: 2000, status: 'Healthy', unit: 'Units', category: 'Boxes', type: 'Packaging', starred: false, lastUpdated: '2023-10-31' }
 ];
 
 const initialLogs = [
@@ -48,13 +48,13 @@ const initialLogs = [
 function App() {
   const [user, setUser] = useState(null); // Auth state
   const [currentView, setCurrentView] = useState('dashboard');
-  
+
   // App States
   const [clients, setClients] = useState(initialClients);
   const [orders, setOrders] = useState(initialOrders);
   const [inventory, setInventory] = useState(initialInventory);
   const [logs, setLogs] = useState(initialLogs);
-  
+
   const [isSystemHalted, setIsSystemHalted] = useState(false);
   const [activeDrawer, setActiveDrawer] = useState(null); // { type, data }
   const [selectedOrderDetail, setSelectedOrderDetail] = useState(null);
@@ -94,6 +94,10 @@ function App() {
     }
   };
 
+  const handleUpdateOrderStatus = (orderId, newStatus) => {
+    setOrders(prevOrders => prevOrders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+  };
+
   const handleHaltToggle = () => {
     setIsSystemHalted(!isSystemHalted);
     if (!isSystemHalted) {
@@ -109,9 +113,9 @@ function App() {
     } else if (action === 'log-material') {
       const addedQty = Math.floor(Math.random() * 500) + 100;
       // Increment silicone base quantity
-      setInventory(inventory.map(item => 
-        item.id === 'RM-1042' 
-          ? { ...item, quantity: item.quantity + addedQty, status: item.quantity + addedQty >= item.threshold ? 'Healthy' : 'Low Stock' } 
+      setInventory(inventory.map(item =>
+        item.id === 'RM-1042'
+          ? { ...item, quantity: item.quantity + addedQty, status: item.quantity + addedQty >= item.threshold ? 'Healthy' : 'Low Stock' }
           : item
       ));
       alert(`Log Material Receipt Success: Added ${addedQty} L of Industrial Silicone Base X2 into inventory.`);
@@ -125,9 +129,11 @@ function App() {
     switch (currentView) {
       case 'dashboard':
         return (
-          <DashboardView 
+          <DashboardView
             user={user}
-            productionLogs={logs}
+            orders={orders}
+            onUpdateOrderStatus={handleUpdateOrderStatus}
+            onToggleStar={handleToggleStar}
             isSystemHalted={isSystemHalted}
             onHaltToggle={handleHaltToggle}
             onAction={handleQuickAction}
@@ -135,7 +141,7 @@ function App() {
         );
       case 'clients':
         return (
-          <ClientsView 
+          <ClientsView
             user={user}
             clients={clients}
             onAddClient={handleAddClient}
@@ -144,7 +150,7 @@ function App() {
         );
       case 'orders':
         return (
-          <OrdersView 
+          <OrdersView
             user={user}
             orders={orders}
             onAddOrder={handleAddOrder}
@@ -155,7 +161,7 @@ function App() {
         );
       case 'order-detail':
         return (
-          <OrderDetailView 
+          <OrderDetailView
             order={selectedOrderDetail}
             onBack={() => { setCurrentView('orders'); setSelectedOrderDetail(null); }}
             onToggleStar={handleToggleStar}
@@ -164,7 +170,7 @@ function App() {
         );
       case 'create-order':
         return (
-          <CreateOrderView 
+          <CreateOrderView
             clients={clients}
             onSave={(newOrder) => {
               handleAddOrder(newOrder);
@@ -177,7 +183,7 @@ function App() {
       case 'packaging':
         // Show raw materials page and set state filter accordingly
         return (
-          <InventoryView 
+          <InventoryView
             user={user}
             inventoryItems={inventory}
             onToggleStar={handleToggleStar}
@@ -186,13 +192,13 @@ function App() {
         );
       case 'suppliers':
         return (
-          <SuppliersView 
+          <SuppliersView
             user={user}
           />
         );
       case 'product-catalog':
         return (
-          <ProductCatalogView 
+          <ProductCatalogView
             user={user}
           />
         );
@@ -234,9 +240,9 @@ function App() {
   return (
     <div className="app-container">
       {/* Navigation Left Sidebar */}
-      <Sidebar 
-        currentView={currentView} 
-        onViewChange={(view) => setCurrentView(view)} 
+      <Sidebar
+        currentView={currentView}
+        onViewChange={(view) => setCurrentView(view)}
         onLogout={handleLogout}
         user={user}
       />
@@ -246,7 +252,7 @@ function App() {
 
       {/* Detail Slide Drawer Overlay */}
       {activeDrawer && (
-        <DetailDrawer 
+        <DetailDrawer
           type={activeDrawer.type}
           data={activeDrawer.data}
           onClose={() => setActiveDrawer(null)}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Plus, SlidersHorizontal, Eye, Bell, Globe } from 'lucide-react';
+import { Search, Plus, SlidersHorizontal, Eye, Bell, Globe, Calendar, Download } from 'lucide-react';
 
 export default function SuppliersView({ user }) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -46,8 +46,8 @@ export default function SuppliersView({ user }) {
   };
 
   const filteredSuppliers = suppliers.filter(sup => {
-    const matchesSearch = 
-      sup.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    const matchesSearch =
+      sup.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       sup.id.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
   });
@@ -56,8 +56,12 @@ export default function SuppliersView({ user }) {
     <div className="main-content">
       {/* Top Navbar */}
       <header className="top-navbar">
-        <div className="navbar-brand">Manufacturing Portal</div>
+        <div className="navbar-brand"></div>
         <div className="navbar-actions">
+          <div className="navbar-search">
+            <Search size={16} className="navbar-search-icon" />
+            <input type="text" placeholder="Search orders, materials..." />
+          </div>
           <button className="icon-btn" onClick={() => alert('No new notifications')}>
             <Bell size={20} />
           </button>
@@ -88,15 +92,15 @@ export default function SuppliersView({ user }) {
           <div className="filters-left">
             <div className="search-input-wrapper">
               <Search size={18} />
-              <input 
-                type="text" 
-                placeholder="Search by supplier name, ID, or material..." 
+              <input
+                type="text"
+                placeholder="Search suppliers by name or ID..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            
-            <select 
+
+            <select
               className="filter-select"
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
@@ -107,10 +111,20 @@ export default function SuppliersView({ user }) {
               <option value="Curing Agents">Curing Agents</option>
             </select>
 
-            <button className="btn-outline">
+            <button className="btn-outline" onClick={() => alert('Filter options opened')}>
               <SlidersHorizontal size={16} />
+              <span>Filters</span>
+            </button>
+            <button className="btn-outline" onClick={() => alert('Select date range')}>
+              <Calendar size={16} />
+              <span>Date Range</span>
             </button>
           </div>
+
+          <button className="btn-outline" onClick={() => alert('Suppliers list exported as CSV.')}>
+            <Download size={16} />
+            <span>Export CSV</span>
+          </button>
         </div>
 
         {/* Table Card */}
@@ -183,7 +197,7 @@ export default function SuppliersView({ user }) {
           <div className="modal-container">
             <div className="modal-header">
               <h3 className="modal-title">Add New Supplier</h3>
-              <button 
+              <button
                 style={{ background: 'none', border: 'none', fontSize: '1.25rem', cursor: 'pointer' }}
                 onClick={() => setIsModalOpen(false)}
               >
@@ -194,9 +208,9 @@ export default function SuppliersView({ user }) {
               <div className="modal-body">
                 <div className="form-group">
                   <label className="form-label">Company Name</label>
-                  <input 
-                    type="text" 
-                    className="form-input" 
+                  <input
+                    type="text"
+                    className="form-input"
                     placeholder="e.g. ChemCorp Industries"
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
@@ -205,9 +219,9 @@ export default function SuppliersView({ user }) {
                 </div>
                 <div className="form-group">
                   <label className="form-label">Division / Area</label>
-                  <input 
-                    type="text" 
-                    className="form-input" 
+                  <input
+                    type="text"
+                    className="form-input"
                     placeholder="e.g. Polymer Resins Division"
                     value={division}
                     onChange={(e) => setDivision(e.target.value)}
@@ -215,9 +229,9 @@ export default function SuppliersView({ user }) {
                 </div>
                 <div className="form-group">
                   <label className="form-label">Phone</label>
-                  <input 
-                    type="text" 
-                    className="form-input" 
+                  <input
+                    type="text"
+                    className="form-input"
                     placeholder="e.g. +1 (555) 019-2834"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
@@ -225,9 +239,9 @@ export default function SuppliersView({ user }) {
                 </div>
                 <div className="form-group">
                   <label className="form-label">Email</label>
-                  <input 
-                    type="email" 
-                    className="form-input" 
+                  <input
+                    type="email"
+                    className="form-input"
                     placeholder="e.g. orders@chemcorp.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -242,6 +256,9 @@ export default function SuppliersView({ user }) {
           </div>
         </div>
       )}
+      <footer className="page-footer">
+        2026@ Orion Studios
+      </footer>
     </div>
   );
 }

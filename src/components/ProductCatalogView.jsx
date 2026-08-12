@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
-import { 
-  Folder, 
-  FlaskConical, 
-  MoreVertical, 
-  Search, 
-  Plus, 
-  Edit, 
-  Trash2, 
-  ChevronRight, 
-  Activity, 
-  Eye, 
-  Bell, 
-  Globe 
+import {
+  Folder,
+  FlaskConical,
+  MoreVertical,
+  Search,
+  Plus,
+  Edit,
+  Trash2,
+  ChevronRight,
+  Activity,
+  Eye,
+  Bell,
+  Globe
 } from 'lucide-react';
 
 export default function ProductCatalogView({ user }) {
@@ -91,13 +91,13 @@ export default function ProductCatalogView({ user }) {
     <div className="main-content">
       {/* Top Navbar */}
       <header className="top-navbar">
-        <div className="navbar-brand">Manufacturing Portal</div>
+        <div className="navbar-brand"></div>
         <div className="navbar-actions">
           <div className="navbar-search">
             <Search size={16} className="navbar-search-icon" />
-            <input 
-              type="text" 
-              placeholder="Search catalog..." 
+            <input
+              type="text"
+              placeholder="Search catalog..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -114,14 +114,14 @@ export default function ProductCatalogView({ user }) {
 
       {/* Main Content Area */}
       <div className="page-container" style={{ paddingBottom: '4rem' }}>
-        
+
         {/* Breadcrumbs Row */}
         <div className="breadcrumbs-row">
           <span onClick={() => { setLevel('grid'); setSelectedCollection(null); setSelectedProduct(null); }}>Product Catalog</span>
           {selectedCollection && (
             <>
               <ChevronRight size={14} />
-              <span 
+              <span
                 className={level === 'collection' ? 'active' : ''}
                 onClick={() => { setLevel('collection'); setSelectedProduct(null); }}
               >
@@ -161,7 +161,7 @@ export default function ProductCatalogView({ user }) {
                     <button className="collection-card-options" onClick={(e) => { e.stopPropagation(); alert('Collection configuration settings.'); }}>
                       <MoreVertical size={16} />
                     </button>
-                    
+
                     <div className="collection-card-icon">
                       {col.iconType === 'flask' ? <FlaskConical size={22} /> : <Folder size={22} />}
                     </div>
@@ -169,10 +169,10 @@ export default function ProductCatalogView({ user }) {
                     <h3 className="collection-card-title">{col.name}</h3>
 
                     <div className="collection-card-meta">
-                      <span style={{ 
-                        fontSize: '0.7rem', 
-                        fontWeight: 700, 
-                        padding: '0.15rem 0.5rem', 
+                      <span style={{
+                        fontSize: '0.7rem',
+                        fontWeight: 700,
+                        padding: '0.15rem 0.5rem',
                         borderRadius: '4px',
                         backgroundColor: col.status === 'ACTIVE' ? '#f1f5f9' : '#fff7ed',
                         color: col.status === 'ACTIVE' ? '#475569' : '#ea580c'
@@ -203,10 +203,10 @@ export default function ProductCatalogView({ user }) {
                 </p>
               </div>
               <div style={{ display: 'flex', gap: '0.75rem' }}>
-                <button 
-                  className="btn-outline" 
+                <button
+                  className="btn-outline"
                   style={{ color: '#b91c1c', borderColor: '#fca5a5' }}
-                  onClick={() => { if(confirm('Delete entire collection?')) setLevel('grid'); }}
+                  onClick={() => { if (confirm('Delete entire collection?')) setLevel('grid'); }}
                 >
                   <Trash2 size={16} />
                   <span>Delete Collection</span>
@@ -302,10 +302,10 @@ export default function ProductCatalogView({ user }) {
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <h1 className="page-title">{selectedProduct.name || 'DuraSeal Pro'}</h1>
-                  <span style={{ 
-                    fontSize: '0.7rem', 
-                    fontWeight: 700, 
-                    padding: '0.2rem 0.5rem', 
+                  <span style={{
+                    fontSize: '0.7rem',
+                    fontWeight: 700,
+                    padding: '0.2rem 0.5rem',
                     borderRadius: '4px',
                     backgroundColor: '#d1fae5',
                     color: '#065f46',
@@ -323,10 +323,10 @@ export default function ProductCatalogView({ user }) {
                   <Edit size={16} />
                   <span>Edit</span>
                 </button>
-                <button 
-                  className="btn-outline" 
+                <button
+                  className="btn-outline"
                   style={{ color: '#b91c1c', borderColor: '#fca5a5' }}
-                  onClick={() => { if(confirm('Delete product?')) setLevel('collection'); }}
+                  onClick={() => { if (confirm('Delete product?')) setLevel('collection'); }}
                 >
                   <Trash2 size={16} />
                 </button>
@@ -424,6 +424,9 @@ export default function ProductCatalogView({ user }) {
           </>
         )}
       </div>
+      <footer className="page-footer">
+        2026@ Orion Studios
+      </footer>
     </div>
   );
 }

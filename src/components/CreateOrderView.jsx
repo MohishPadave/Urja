@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { 
-  Search, 
-  Plus, 
-  Calendar, 
-  Calculator, 
-  Layers, 
-  UserCheck, 
-  Sparkles, 
-  Check, 
-  ArrowLeft 
+import {
+  Search,
+  Plus,
+  Calendar,
+  Calculator,
+  Layers,
+  UserCheck,
+  Sparkles,
+  Check,
+  ArrowLeft
 } from 'lucide-react';
 
 export default function CreateOrderView({ onSave, onCancel, clients }) {
@@ -43,9 +43,9 @@ export default function CreateOrderView({ onSave, onCancel, clients }) {
       clientName: selectedClient.name,
       startDate,
       endDate,
-      price: 17250.00, // $14,800 + $2,450
+      price: 17250.00, // ₹14,800 + ₹2,450
       priority: 'Medium',
-      status: 'Active',
+      status: 'Confirmed',
       starred: false,
       productDetails: {
         collection,
@@ -83,14 +83,14 @@ export default function CreateOrderView({ onSave, onCancel, clients }) {
               <UserCheck size={18} style={{ color: 'var(--primary-color)' }} />
               1. Client Details
             </h3>
-            
+
             <div className="form-group" style={{ marginBottom: '1rem' }}>
               <label className="form-label">Search Client</label>
               <div className="search-input-wrapper">
                 <Search size={18} />
-                <input 
-                  type="text" 
-                  placeholder="Type to search clients..." 
+                <input
+                  type="text"
+                  placeholder="Type to search clients..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -98,10 +98,10 @@ export default function CreateOrderView({ onSave, onCancel, clients }) {
             </div>
 
             {selectedClient && (
-              <div style={{ 
-                backgroundColor: '#f8fafc', 
-                border: '1px solid var(--border-color)', 
-                borderRadius: '8px', 
+              <div style={{
+                backgroundColor: '#f8fafc',
+                border: '1px solid var(--border-color)',
+                borderRadius: '8px',
                 padding: '1rem',
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -116,8 +116,8 @@ export default function CreateOrderView({ onSave, onCancel, clients }) {
                     Shipping: {selectedClient.shipping}
                   </p>
                 </div>
-                <button 
-                  className="btn-outline" 
+                <button
+                  className="btn-outline"
                   style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}
                   onClick={() => alert('Search matches: Apex Construction Materials (CLI-8992), Apex Sealants LLC (CLI-004)')}
                 >
@@ -137,8 +137,8 @@ export default function CreateOrderView({ onSave, onCancel, clients }) {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
               <div className="form-group">
                 <label className="form-label">Collection</label>
-                <select 
-                  className="filter-select" 
+                <select
+                  className="filter-select"
                   style={{ width: '100%', backgroundColor: 'white' }}
                   value={collection}
                   onChange={(e) => setCollection(e.target.value)}
@@ -151,8 +151,8 @@ export default function CreateOrderView({ onSave, onCancel, clients }) {
 
               <div className="form-group">
                 <label className="form-label">Product Line</label>
-                <select 
-                  className="filter-select" 
+                <select
+                  className="filter-select"
                   style={{ width: '100%', backgroundColor: 'white' }}
                   value={productLine}
                   onChange={(e) => setProductLine(e.target.value)}
@@ -182,9 +182,9 @@ export default function CreateOrderView({ onSave, onCancel, clients }) {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div className="form-group">
                 <label className="form-label">Start Date</label>
-                <input 
-                  type="date" 
-                  className="form-input" 
+                <input
+                  type="date"
+                  className="form-input"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
                 />
@@ -192,9 +192,9 @@ export default function CreateOrderView({ onSave, onCancel, clients }) {
 
               <div className="form-group">
                 <label className="form-label">Target Completion</label>
-                <input 
-                  type="date" 
-                  className="form-input" 
+                <input
+                  type="date"
+                  className="form-input"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
                 />
@@ -219,7 +219,7 @@ export default function CreateOrderView({ onSave, onCancel, clients }) {
                   </div>
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Estimated Total</span>
                 </div>
-                <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1e293b' }}>$2,450.00</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1e293b' }}>₹2,450.00</div>
               </div>
 
               {/* Raw Materials Card */}
@@ -231,7 +231,7 @@ export default function CreateOrderView({ onSave, onCancel, clients }) {
                   </div>
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Estimated Total</span>
                 </div>
-                <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1e293b' }}>$14,800.00</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1e293b' }}>₹14,800.00</div>
               </div>
             </div>
           </div>
