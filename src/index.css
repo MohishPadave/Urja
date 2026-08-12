@@ -1716,3 +1716,143 @@ button, input, select, textarea {
 }
 
 
+/* ============================================================
+   RESPONSIVE: LOGIN PAGE
+   ============================================================ */
+
+/* Tablet: up to 1024px */
+@media (max-width: 1024px) {
+  .login-container {
+    flex-direction: column;
+  }
+
+  .login-visual-panel {
+    flex: none;
+    height: 220px;
+    padding: 2rem 2.5rem;
+  }
+
+  .login-visual-tagline {
+    font-size: 1.75rem;
+  }
+
+  .login-visual-content {
+    max-width: 100%;
+  }
+
+  .login-form-panel {
+    flex: 1;
+    padding: 2.5rem 3rem;
+    justify-content: flex-start;
+    overflow-y: auto;
+  }
+
+  .login-form-wrapper {
+    max-width: 420px;
+  }
+
+  .login-welcome h1 {
+    font-size: 1.75rem;
+  }
+
+  .login-copyright {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    margin-top: 2rem;
+    padding-bottom: 1rem;
+  }
+}
+
+/* Mobile: up to 640px */
+@media (max-width: 640px) {
+  .login-visual-panel {
+    height: 180px;
+    padding: 1.5rem 1.5rem;
+  }
+
+  .login-visual-tagline {
+    font-size: 1.35rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .login-visual-panel p {
+    font-size: 0.85rem !important;
+  }
+
+  .login-form-panel {
+    padding: 1.75rem 1.5rem;
+  }
+
+  .login-form-wrapper {
+    max-width: 100%;
+  }
+
+  .login-logo-wrapper {
+    margin-bottom: 1.5rem !important;
+  }
+
+  .login-logo-text h2 {
+    font-size: 1.2rem;
+  }
+
+  .login-welcome {
+    margin-bottom: 1.25rem;
+  }
+
+  .login-welcome h1 {
+    font-size: 1.5rem;
+  }
+
+  .login-welcome p {
+    font-size: 0.85rem;
+  }
+
+  .login-input-group {
+    margin-bottom: 1rem;
+  }
+
+  .login-input-field input {
+    padding: 0.65rem 0.85rem 0.65rem 2.25rem;
+    font-size: 0.9rem;
+  }
+
+  .login-options-row {
+    margin-bottom: 1.25rem;
+  }
+
+  .login-submit-btn {
+    padding: 0.75rem;
+    font-size: 0.95rem;
+  }
+
+  .login-copyright {
+    font-size: 0.7rem;
+    margin-top: 1.5rem;
+  }
+}
+
+/* Very Small Screens: up to 380px */
+@media (max-width: 380px) {
+  .login-visual-panel {
+    height: 140px;
+    padding: 1.25rem 1rem;
+  }
+
+  .login-visual-tagline {
+    font-size: 1.15rem;
+  }
+
+  .login-form-panel {
+    padding: 1.25rem 1rem;
+  }
+
+  .login-welcome h1 {
+    font-size: 1.25rem;
+  }
+
+  .login-logo-text h2 {
+    font-size: 1.05rem;
+  }
+}
